@@ -3,7 +3,7 @@ A Google Documents Apps Script that searches for Bible verses and creates links 
 
 # How to use
 1. In your Google Document, click **Extensions > Apps Script.**
-2. In the page that will open, **copy and paste** the contents of **Code.gs.**
+2. In the page that will open, **copy and paste** the contents of **[Code.gs](https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs).**
 3. **Save.** You may now close the Apps Script window and **refresh** your document.
 4. Find **_Bible Linker_** in the Menu. Enjoy!
 
@@ -11,6 +11,7 @@ A Google Documents Apps Script that searches for Bible verses and creates links 
 Coders are welcome to improve the script. It's open sourced, MIT license.
 
 ### Things that could be worked on:
+* Fix bugs
 * Support for other languages
 * Support for more online Bibles
 * Make it more fun?
