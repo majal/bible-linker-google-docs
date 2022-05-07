@@ -33,7 +33,7 @@ function create_menu() {
   // Set lastest used Bible version to the menu
   let last_used_bible_label = bible_versions[last_used_bible_version];
   let function_name = 'bible_linker_' + last_used_bible_version;
-  let search_label = '🔗⠀Link the verses using: ' + last_used_bible_label;
+  let search_label = '🔗⠀Link verses using ' + last_used_bible_label;
 
   // Set menu
   var ui = DocumentApp.getUi();
