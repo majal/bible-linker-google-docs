@@ -12,6 +12,7 @@ Coders are welcome to improve the script. It's open sourced, MIT license.
 
 ### Things that could be worked on:
 * Fix bugs
+* Apply linker to selection(s) only
 * Support for other languages
 * Support for more online Bibles
 * Make it more fun?
