@@ -33,18 +33,19 @@ function create_menu() {
   // Set lastest used Bible version to the menu
   let last_used_bible_label = bible_versions[last_used_bible_version];
   let function_name = 'bible_linker_' + last_used_bible_version;
-  let search_label = 'Link the verses using: ' + last_used_bible_label;
+  let search_label = '🔗⠀Link the verses using: ' + last_used_bible_label;
 
   // Set menu
   var ui = DocumentApp.getUi();
   var menu = ui.createMenu('Bible Linker').addItem(search_label, function_name).addSeparator();
-  var submenu_bible_ver = ui.createMenu('Select Bible version  >');
+  var submenu_bible_ver = ui.createMenu('📖⠀Select Bible version');
 
   // Set dynamic submenus
   for (let n=0; n < bible_versions_keys.length; n++) {
     let key = bible_versions_keys[n];
     let function_name = 'bible_linker_' + key;
-    submenu_bible_ver.addItem(bible_versions[key], function_name);
+    let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
+    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], function_name);
   }
 
   // Create menu 
