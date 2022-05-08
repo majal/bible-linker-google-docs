@@ -79,49 +79,67 @@ function bible_linker(bible_version) {
 
   // Run parser for each Bible name
   for (let n=0; n < nwt_bookName.length; n++) {
-    parse_scripture(bible_version, nwt_bookName[n], n+1);
+    bible_search(bible_version, nwt_bookName[n], n+1);
   }
   for (let n=0; n < nwt_bookAbbrev1.length; n++) {
-    parse_scripture(bible_version, nwt_bookAbbrev1[n], n+1);
+    bible_search(bible_version, nwt_bookAbbrev1[n], n+1);
   }
   for (let n=0; n < nwt_bookAbbrev2.length; n++) {
-    parse_scripture(bible_version, nwt_bookAbbrev2[n], n+1);
+    bible_search(bible_version, nwt_bookAbbrev2[n], n+1);
   }
 
 }
 
 
-function parse_scripture(bible_version, bible_name, bible_num) {
+function bible_search(bible_version, bible_name, bible_num) {
 
+  // Variable(s) and constant(s)
+  var single_chapters = consts('single_chapter_bible_nums');
+  
   // Initialize Google Docs
   var doc = DocumentApp.getActiveDocument();
+  var selection = doc.getSelection();
+  /*
+  if (selection) {
+    var elements = selection.getRangeElements();
+  }
+  */
   var body = doc.getBody();
+
+  // Search for Bible references
+  if (single_chapters.includes(bible_num)) {
+    var search_string = bible_name + ' [0-9 ,-]+';
+  } else {
+    var search_string = bible_name + ' [0-9]+:[0-9 ,;:-]+';
+  }
+  var bible_search_result = body.findText(search_string);
+  // var bible_search_result = selection.findText(search_string);
+
+  // Pass results to parser
+  bible_parse(bible_version, bible_name, bible_num, bible_search_result, body, search_string);
+
+}
+
+
+function bible_parse(bible_version, bible_name, bible_num, bible_search_result, search_field, search_string) {
 
   // Variable(s) and constant(s)
   var single_chapters = consts('single_chapter_bible_nums');
 
-  // Search for Bible references
-  if (single_chapters.includes(bible_num)) {
-    var ref_search_string = bible_name + ' [0-9 ,-]+';
-  } else {
-    var ref_search_string = bible_name + ' [0-9]+:[0-9 ,;:-]+';
-  }
-  var bibleref_full = body.findText(ref_search_string);
-  
   // Cycle through each Bible reference found
-  while (bibleref_full != null) {
+  while (bible_search_result != null) {
 
     // Set reference start and end
-    var bibleref_full_start = bibleref_full.getStartOffset();
-    var bibleref_full_end = bibleref_full.getEndOffsetInclusive();
+    var bible_search_result_start = bible_search_result.getStartOffset();
+    var bible_search_result_end = bible_search_result.getEndOffsetInclusive();
 
     // Isolate reference only
-    var bibleref_full_astext = bibleref_full.getElement().asText();
-    var bibleref_full_text = bibleref_full_astext.getText();
-    var bibleref_full_text_slice = bibleref_full_text.slice(bibleref_full_start, bibleref_full_end + 1);
+    var bible_search_result_astext = bible_search_result.getElement().asText();
+    var bible_search_result_text = bible_search_result_astext.getText();
+    var bible_search_result_text_slice = bible_search_result_text.slice(bible_search_result_start, bible_search_result_end + 1);
 
     // Split at semicolon (;)
-    var bibleref_split = bibleref_full_text_slice.split(';');
+    var bibleref_split = bible_search_result_text_slice.split(';');
   
     // Retain verses only, remove if it does not contain colon (:), exception on single chapter books
     for (let n=0; n < bibleref_split.length; n++) {
@@ -198,11 +216,11 @@ function parse_scripture(bible_version, bible_name, bible_num) {
 
           // Get url text ranges
           let url_text_len = bibleref_split[n][m].trim().length;
-          select_start = bibleref_full_start + offset_reference;
+          select_start = bible_search_result_start + offset_reference;
           select_end = select_start + url_text_len - 1;
           
           // Set links
-          bibleref_full_astext.setLinkUrl(select_start, select_end, url);
+          bible_search_result_astext.setLinkUrl(select_start, select_end, url);
           
           // Add to reference offset
           offset_reference += url_text_len + 2;
@@ -239,11 +257,11 @@ function parse_scripture(bible_version, bible_name, bible_num) {
 
         // Get url text ranges
         let url_text_len = bibleref_split[n].trim().length;
-        select_start = bibleref_full_start + offset_reference;
+        select_start = bible_search_result_start + offset_reference;
         select_end = select_start + url_text_len - 1;
         
         // Set links
-        bibleref_full_astext.setLinkUrl(select_start, select_end, url);
+        bible_search_result_astext.setLinkUrl(select_start, select_end, url);
 
         // Add to reference offset
         offset_reference += url_text_len + 2
@@ -251,7 +269,7 @@ function parse_scripture(bible_version, bible_name, bible_num) {
     }
 
     // Find the next match
-    bibleref_full = body.findText(ref_search_string, bibleref_full);
+    bible_search_result = search_field.findText(search_string, bible_search_result);
   }
 
 }
