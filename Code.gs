@@ -24,7 +24,7 @@ function create_menu() {
   // Get lastest used Bible version by user
   const userProperties = PropertiesService.getUserProperties();
   var last_used_bible_version = userProperties.getProperty('last_used_bible_version');
-  if (last_used_bible_version == null) last_used_bible_version = 'wol_nwtsty';
+  if (last_used_bible_version == null) last_used_bible_version = 'nwtsty_wol';
 
   // Pull supported Bible versions
   const bible_versions = consts('bible_versions');
