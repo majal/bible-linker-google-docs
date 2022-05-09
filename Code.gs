@@ -32,24 +32,46 @@ function create_menu() {
 
   // Set lastest used Bible version to the menu
   let last_used_bible_label = bible_versions[last_used_bible_version];
-  let function_name = 'bible_linker_' + last_used_bible_version;
+  let dynamic_name_bible_linker = 'bible_linker_' + last_used_bible_version;
   let search_label = '🔗⠀Link verses using ' + last_used_bible_label;
 
   // Set menu
   var ui = DocumentApp.getUi();
-  var menu = ui.createMenu('Bible Linker').addItem(search_label, function_name).addSeparator();
-  var submenu_bible_ver = ui.createMenu('📖⠀Select Bible version');
+  var menu = ui.createMenu('Bible Linker')
+    .addItem(search_label, dynamic_name_bible_linker)
 
-  // Set dynamic submenus
+  // Set Bible version dynamic submenus
+  var submenu_bible_ver = ui.createMenu('📖⠀Choose Bible version');
   for (let n=0; n < bible_versions_keys.length; n++) {
     let key = bible_versions_keys[n];
-    let function_name = 'bible_linker_' + key;
+    let dynamic_name_bible_linker = 'bible_linker_' + key;
     let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
-    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], function_name);
+    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
   }
 
   // Create menu 
   menu.addSubMenu(submenu_bible_ver).addToUi();
+
+/*
+  // Set study tools dynamic submenus
+  var submenu_study_tools = ui.createMenu('📝⠀Bible study tools');
+  for (let n=0; n < bible_versions_keys.length; n++) {
+    let key = bible_versions_keys[n];
+    let dynamic_name_bible_linker = 'bible_linker_' + key;
+    let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
+    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
+  }
+
+  let study_tool;
+  let dynamic_name_study_tools = 'study_tools' + study_tool;
+
+  // Create menu 
+  menu.addSubMenu(submenu_bible_ver)
+    .addSeparator()
+    .addSubMenu('Bible study tools')
+      .addItem('Watchtower Online Library', 'study_tools')
+    .addToUi();
+*/
 
 }
 
@@ -59,8 +81,8 @@ const bible_versions = consts('bible_versions');
 const bible_versions_keys = Object.keys(bible_versions);
 for (let n=0; n < bible_versions_keys.length; n++) {
   let key = bible_versions_keys[n];
-  let function_name = 'bible_linker_' + key;
-  this[function_name] = function() { bible_linker(key); };
+  let dynamic_name_bible_linker = 'bible_linker_' + key;
+  this[dynamic_name_bible_linker] = function() { bible_linker(key); };
 }
 
 
@@ -98,12 +120,13 @@ function bible_search(bible_version, bible_name, bible_num) {
   
   // Initialize Google Docs
   var doc = DocumentApp.getActiveDocument();
+/*
   var selection = doc.getSelection();
-  /*
+
   if (selection) {
     var elements = selection.getRangeElements();
   }
-  */
+*/
   var body = doc.getBody();
 
   // Search for Bible references
@@ -382,9 +405,9 @@ function consts(const_name) {
     // Make sure that entries below exist in function get_url > switch (bible_version)
     case 'bible_versions':
       return {
-        wol_nwt: 'WOL - New World Translation (NWT)',
-        wol_nwtsty: 'WOL - NWT Study Bible',
-        wol_nwtrbi8: 'WOL - NWT Reference Bible',
+        wol_nwt: 'New World Translation (NWT) (WOL)',
+        wol_nwtsty: 'NWT Study Bible (WOL)',
+        wol_nwtrbi8: 'NWT Reference Bible (WOL)',
         nwt: 'New World Translation (NWT)',
         nwtsty: 'NWT Study Bible',
         rbi8: 'NWT Reference Bible'
