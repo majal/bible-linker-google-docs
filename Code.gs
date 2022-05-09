@@ -52,27 +52,6 @@ function create_menu() {
   // Create menu 
   menu.addSubMenu(submenu_bible_ver).addToUi();
 
-/*
-  // Set study tools dynamic submenus
-  var submenu_study_tools = ui.createMenu('📝⠀Bible study tools');
-  for (let n=0; n < bible_versions_keys.length; n++) {
-    let key = bible_versions_keys[n];
-    let dynamic_name_bible_linker = 'bible_linker_' + key;
-    let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
-    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
-  }
-
-  let study_tool;
-  let dynamic_name_study_tools = 'study_tools' + study_tool;
-
-  // Create menu 
-  menu.addSubMenu(submenu_bible_ver)
-    .addSeparator()
-    .addSubMenu('Bible study tools')
-      .addItem('Watchtower Online Library', 'study_tools')
-    .addToUi();
-*/
-
 }
 
 
@@ -88,8 +67,11 @@ for (let n=0; n < bible_versions_keys.length; n++) {
 
 function bible_linker(bible_version) {
 
+  // Initialize Google Docs
+  var doc = DocumentApp.getActiveDocument();
+
   // Set the latest used Bible version
-  if (bible_version == undefined || bible_version == null) bible_version = 'wol_nwtsty';
+  if (bible_version == undefined || bible_version == null) bible_version = 'nwtsty_wol';
   const userProperties = PropertiesService.getUserProperties();
   userProperties.setProperty('last_used_bible_version', bible_version);
   create_menu();
@@ -101,33 +83,24 @@ function bible_linker(bible_version) {
 
   // Run parser for each Bible name
   for (let n=0; n < nwt_bookName.length; n++) {
-    bible_search(bible_version, nwt_bookName[n], n+1);
+    bible_search(doc, bible_version, nwt_bookName[n], n+1);
   }
   for (let n=0; n < nwt_bookAbbrev1.length; n++) {
-    bible_search(bible_version, nwt_bookAbbrev1[n], n+1);
+    bible_search(doc, bible_version, nwt_bookAbbrev1[n], n+1);
   }
   for (let n=0; n < nwt_bookAbbrev2.length; n++) {
-    bible_search(bible_version, nwt_bookAbbrev2[n], n+1);
+    bible_search(doc, bible_version, nwt_bookAbbrev2[n], n+1);
   }
 
 }
 
 
-function bible_search(bible_version, bible_name, bible_num) {
+function bible_search(doc, bible_version, bible_name, bible_num) {
 
-  // Variable(s) and constant(s)
+  // Set variables and constants
   var single_chapters = consts('single_chapter_bible_nums');
-  
-  // Initialize Google Docs
-  var doc = DocumentApp.getActiveDocument();
-/*
+  var search_field, search_result;
   var selection = doc.getSelection();
-
-  if (selection) {
-    var elements = selection.getRangeElements();
-  }
-*/
-  var body = doc.getBody();
 
   // Search for Bible references
   if (single_chapters.includes(bible_num)) {
@@ -135,34 +108,52 @@ function bible_search(bible_version, bible_name, bible_num) {
   } else {
     var search_string = bible_name + ' [0-9]+:[0-9 ,;:-]+';
   }
-  var bible_search_result = body.findText(search_string);
-  // var bible_search_result = selection.findText(search_string);
 
-  // Pass results to parser
-  bible_parse(bible_version, bible_name, bible_num, bible_search_result, body, search_string);
+  // Check if selection is present and only process that
+  if (selection) {
+    var range_elements = selection.getRangeElements();
+
+    // Search within each selection element and pass results to parser 
+    for (let n=0; n < range_elements.length; n++) {
+      search_field = range_elements[n].getElement();
+      search_result = search_field.findText(search_string);
+      
+      bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+    }
+
+  } else {
+
+    // Perform search on whole document
+    search_field = doc.getBody();
+    search_result = search_field.findText(search_string);
+
+    // Pass results to parser
+    bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+
+  } 
 
 }
 
 
-function bible_parse(bible_version, bible_name, bible_num, bible_search_result, search_field, search_string) {
+function bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string) {
 
   // Variable(s) and constant(s)
   var single_chapters = consts('single_chapter_bible_nums');
 
   // Cycle through each Bible reference found
-  while (bible_search_result != null) {
+  while (search_result != null) {
 
     // Set reference start and end
-    var bible_search_result_start = bible_search_result.getStartOffset();
-    var bible_search_result_end = bible_search_result.getEndOffsetInclusive();
+    var search_result_start = search_result.getStartOffset();
+    var search_result_end = search_result.getEndOffsetInclusive();
 
     // Isolate reference only
-    var bible_search_result_astext = bible_search_result.getElement().asText();
-    var bible_search_result_text = bible_search_result_astext.getText();
-    var bible_search_result_text_slice = bible_search_result_text.slice(bible_search_result_start, bible_search_result_end + 1);
+    var search_result_astext = search_result.getElement().asText();
+    var search_result_text = search_result_astext.getText();
+    var search_result_text_slice = search_result_text.slice(search_result_start, search_result_end + 1);
 
     // Split at semicolon (;)
-    var bibleref_split = bible_search_result_text_slice.split(';');
+    var bibleref_split = search_result_text_slice.split(';');
   
     // Retain verses only, remove if it does not contain colon (:), exception on single chapter books
     for (let n=0; n < bibleref_split.length; n++) {
@@ -239,11 +230,11 @@ function bible_parse(bible_version, bible_name, bible_num, bible_search_result, 
 
           // Get url text ranges
           let url_text_len = bibleref_split[n][m].trim().length;
-          select_start = bible_search_result_start + offset_reference;
+          select_start = search_result_start + offset_reference;
           select_end = select_start + url_text_len - 1;
           
           // Set links
-          bible_search_result_astext.setLinkUrl(select_start, select_end, url);
+          search_result_astext.setLinkUrl(select_start, select_end, url);
           
           // Add to reference offset, plus two for comma/colon and space
           offset_reference += url_text_len + 2;
@@ -280,11 +271,11 @@ function bible_parse(bible_version, bible_name, bible_num, bible_search_result, 
 
         // Get url text ranges
         let url_text_len = bibleref_split[n].trim().length;
-        select_start = bible_search_result_start + offset_reference;
+        select_start = search_result_start + offset_reference;
         select_end = select_start + url_text_len - 1;
         
         // Set links
-        bible_search_result_astext.setLinkUrl(select_start, select_end, url);
+        search_result_astext.setLinkUrl(select_start, select_end, url);
 
         // Add to reference offset, plus two for comma/colon and space
         offset_reference += url_text_len + 2
@@ -292,7 +283,7 @@ function bible_parse(bible_version, bible_name, bible_num, bible_search_result, 
     }
 
     // Find the next match
-    bible_search_result = search_field.findText(search_string, bible_search_result);
+    search_result = search_field.findText(search_string, search_result);
   }
 
 }
