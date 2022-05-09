@@ -32,24 +32,46 @@ function create_menu() {
 
   // Set lastest used Bible version to the menu
   let last_used_bible_label = bible_versions[last_used_bible_version];
-  let function_name = 'bible_linker_' + last_used_bible_version;
+  let dynamic_name_bible_linker = 'bible_linker_' + last_used_bible_version;
   let search_label = '🔗⠀Link verses using ' + last_used_bible_label;
 
   // Set menu
   var ui = DocumentApp.getUi();
-  var menu = ui.createMenu('Bible Linker').addItem(search_label, function_name).addSeparator();
-  var submenu_bible_ver = ui.createMenu('📖⠀Select Bible version');
+  var menu = ui.createMenu('Bible Linker')
+    .addItem(search_label, dynamic_name_bible_linker)
 
-  // Set dynamic submenus
+  // Set Bible version dynamic submenus
+  var submenu_bible_ver = ui.createMenu('📖⠀Choose Bible version');
   for (let n=0; n < bible_versions_keys.length; n++) {
     let key = bible_versions_keys[n];
-    let function_name = 'bible_linker_' + key;
+    let dynamic_name_bible_linker = 'bible_linker_' + key;
     let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
-    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], function_name);
+    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
   }
 
   // Create menu 
   menu.addSubMenu(submenu_bible_ver).addToUi();
+
+/*
+  // Set study tools dynamic submenus
+  var submenu_study_tools = ui.createMenu('📝⠀Bible study tools');
+  for (let n=0; n < bible_versions_keys.length; n++) {
+    let key = bible_versions_keys[n];
+    let dynamic_name_bible_linker = 'bible_linker_' + key;
+    let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
+    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
+  }
+
+  let study_tool;
+  let dynamic_name_study_tools = 'study_tools' + study_tool;
+
+  // Create menu 
+  menu.addSubMenu(submenu_bible_ver)
+    .addSeparator()
+    .addSubMenu('Bible study tools')
+      .addItem('Watchtower Online Library', 'study_tools')
+    .addToUi();
+*/
 
 }
 
@@ -59,8 +81,8 @@ const bible_versions = consts('bible_versions');
 const bible_versions_keys = Object.keys(bible_versions);
 for (let n=0; n < bible_versions_keys.length; n++) {
   let key = bible_versions_keys[n];
-  let function_name = 'bible_linker_' + key;
-  this[function_name] = function() { bible_linker(key); };
+  let dynamic_name_bible_linker = 'bible_linker_' + key;
+  this[dynamic_name_bible_linker] = function() { bible_linker(key); };
 }
 
 
@@ -79,49 +101,68 @@ function bible_linker(bible_version) {
 
   // Run parser for each Bible name
   for (let n=0; n < nwt_bookName.length; n++) {
-    parse_scripture(bible_version, nwt_bookName[n], n+1);
+    bible_search(bible_version, nwt_bookName[n], n+1);
   }
   for (let n=0; n < nwt_bookAbbrev1.length; n++) {
-    parse_scripture(bible_version, nwt_bookAbbrev1[n], n+1);
+    bible_search(bible_version, nwt_bookAbbrev1[n], n+1);
   }
   for (let n=0; n < nwt_bookAbbrev2.length; n++) {
-    parse_scripture(bible_version, nwt_bookAbbrev2[n], n+1);
+    bible_search(bible_version, nwt_bookAbbrev2[n], n+1);
   }
 
 }
 
 
-function parse_scripture(bible_version, bible_name, bible_num) {
+function bible_search(bible_version, bible_name, bible_num) {
 
+  // Variable(s) and constant(s)
+  var single_chapters = consts('single_chapter_bible_nums');
+  
   // Initialize Google Docs
   var doc = DocumentApp.getActiveDocument();
+/*
+  var selection = doc.getSelection();
+
+  if (selection) {
+    var elements = selection.getRangeElements();
+  }
+*/
   var body = doc.getBody();
+
+  // Search for Bible references
+  if (single_chapters.includes(bible_num)) {
+    var search_string = bible_name + ' [0-9 ,-]+';
+  } else {
+    var search_string = bible_name + ' [0-9]+:[0-9 ,;:-]+';
+  }
+  var bible_search_result = body.findText(search_string);
+  // var bible_search_result = selection.findText(search_string);
+
+  // Pass results to parser
+  bible_parse(bible_version, bible_name, bible_num, bible_search_result, body, search_string);
+
+}
+
+
+function bible_parse(bible_version, bible_name, bible_num, bible_search_result, search_field, search_string) {
 
   // Variable(s) and constant(s)
   var single_chapters = consts('single_chapter_bible_nums');
 
-  // Search for Bible references
-  if (single_chapters.includes(bible_num)) {
-    var ref_search_string = bible_name + ' [0-9 ,-]+';
-  } else {
-    var ref_search_string = bible_name + ' [0-9]+:[0-9 ,;:-]+';
-  }
-  var bibleref_full = body.findText(ref_search_string);
-  
   // Cycle through each Bible reference found
-  while (bibleref_full != null) {
+  while (bible_search_result != null) {
 
     // Set reference start and end
-    var bibleref_full_start = bibleref_full.getStartOffset();
-    var bibleref_full_end = bibleref_full.getEndOffsetInclusive();
+    var bible_search_result_start = bible_search_result.getStartOffset();
+    var bible_search_result_end = bible_search_result.getEndOffsetInclusive();
 
     // Isolate reference only
-    var bibleref_full_astext = bibleref_full.getElement().asText();
-    var bibleref_full_text = bibleref_full_astext.getText();
-    var bibleref_full_text_slice = bibleref_full_text.slice(bibleref_full_start, bibleref_full_end + 1);
+    var bible_search_result_astext = bible_search_result.getElement().asText();
+    var bible_search_result_text = bible_search_result_astext.getText();
+    var bible_search_result_text_slice = bible_search_result_text.slice(bible_search_result_start, bible_search_result_end + 1);
 
     // Split at semicolon (;)
-    var bibleref_split = bibleref_full_text_slice.split(';');
+    var bibleref_split = bible_search_result_text_slice.split(';');
   
     // Retain verses only, remove if it does not contain colon (:), exception on single chapter books
     for (let n=0; n < bibleref_split.length; n++) {
@@ -198,13 +239,13 @@ function parse_scripture(bible_version, bible_name, bible_num) {
 
           // Get url text ranges
           let url_text_len = bibleref_split[n][m].trim().length;
-          select_start = bibleref_full_start + offset_reference;
+          select_start = bible_search_result_start + offset_reference;
           select_end = select_start + url_text_len - 1;
           
           // Set links
-          bibleref_full_astext.setLinkUrl(select_start, select_end, url);
+          bible_search_result_astext.setLinkUrl(select_start, select_end, url);
           
-          // Add to reference offset
+          // Add to reference offset, plus two for comma/colon and space
           offset_reference += url_text_len + 2;
         }
 
@@ -239,19 +280,19 @@ function parse_scripture(bible_version, bible_name, bible_num) {
 
         // Get url text ranges
         let url_text_len = bibleref_split[n].trim().length;
-        select_start = bibleref_full_start + offset_reference;
+        select_start = bible_search_result_start + offset_reference;
         select_end = select_start + url_text_len - 1;
         
         // Set links
-        bibleref_full_astext.setLinkUrl(select_start, select_end, url);
+        bible_search_result_astext.setLinkUrl(select_start, select_end, url);
 
-        // Add to reference offset
+        // Add to reference offset, plus two for comma/colon and space
         offset_reference += url_text_len + 2
       }
     }
 
     // Find the next match
-    bibleref_full = body.findText(ref_search_string, bibleref_full);
+    bible_search_result = search_field.findText(search_string, bible_search_result);
   }
 
 }
@@ -272,36 +313,25 @@ function get_url(bible_version, bible_name_num, chapter_start, chapter_end, vers
   // Make sure to add entries in function consts(bible_versions)
   switch (bible_version) {
   
-    case 'wol_nwtsty':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/nwtsty/';
-      url_hash = '#study=discover&v=';
+    case 'nwt':
+      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=';
 
       if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash + bible_name_num + ':' + chapter_start + ':' + verse_start;
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
       } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
       }
     break;
-      
+
     case 'wol_nwt':
       url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/nwt/';
-      url_hash = '#study=discover&v=';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
 
       if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash + bible_name_num + ':' + chapter_start + ':' + verse_start;
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
       } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
-
-    case 'wol_nwtrbi8':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/Rbi8/';
-      url_hash = '#study=discover&v=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
       }
     break;
 
@@ -315,8 +345,20 @@ function get_url(bible_version, bible_name_num, chapter_start, chapter_end, vers
       }
     break;
 
-    case 'nwt':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=';
+    case 'nwtsty_wol':
+      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/nwtsty/';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
+      } else {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+      }
+    break;
+      
+    case 'nwtrbi8':
+      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=Rbi8&bible=';
 
       if (chapter_start == chapter_end && verse_start == verse_end) {
         return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
@@ -325,13 +367,103 @@ function get_url(bible_version, bible_name_num, chapter_start, chapter_end, vers
       }
     break;
 
-    case 'rbi8':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=Rbi8&bible=';
+    case 'nwtrbi8_wol':
+      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/Rbi8/';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
+      } else {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+      }
+    break;
+
+    case 'kjv_jw':
+      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=bi10&bible=';
 
       if (chapter_start == chapter_end && verse_start == verse_end) {
         return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
       } else {
         return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
+      }
+    break;
+
+    case 'kjw_wol':
+      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/bi10/';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
+      } else {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+      }
+    break;
+
+  case 'by_jw':
+      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=by&bible=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
+      } else {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
+      }
+    break;
+
+    case 'by_wol':
+      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/by/';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
+      } else {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+      }
+    break;
+
+case 'asv_jw':
+      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=bi22&bible=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
+      } else {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
+      }
+    break;
+
+    case 'asv_wol':
+      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/bi22/';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
+      } else {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
+      }
+    break;
+
+    case 'ebr_jw':
+      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=rh&bible=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
+      } else {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
+      }
+    break;
+
+    case 'ebr_wol':
+      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/rh/';
+      url_hash1 = '#s=';
+      url_hash2 = '&study=discover&v=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
+      } else {
+        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
       }
     break;
 
@@ -357,6 +489,30 @@ function consts(const_name) {
       return ["Gen.", "Ex.", "Lev.", "Num.", "Deut.", "Josh.", "Judg.", "Ruth", "1 Sam.", "2 Sam.", "1 Ki.", "2 Ki.", "1 Chron.", "2 Chron.", "Ezra", "Neh.", "Esther", "Job", "Ps.", "Prov.", "Eccl.", "Song of Sol.", "Isa.", "Jer.", "Lam.", "Ezek.", "Dan.", "Hos.", "Joel", "Amos", "Obad.", "Jonah", "Mic.", "Nah.", "Hab.", "Zeph.", "Hag.", "Zech.", "Mal.", "Matt.", "Mark", "Luke", "John", "Acts", "Rom.", "1 Cor.", "2 Cor.", "Gal.", "Eph.", "Phil.", "Col.", "1 Thess.", "2 Thess.", "1 Tim.", "2 Tim.", "Titus", "Philem.", "Heb.", "Jas.", "1 Pet.", "2 Pet.", "1 John", "2 John", "3 John", "Jude", "Rev."];
       break;
 
+    case 'nwt_bookName_bce':
+      return ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalm", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"];
+      break;
+
+    case 'nwt_bookAbbrev1_bce':
+      return ["Ge", "Ex", "Le", "Nu", "De", "Jos", "Jg", "Ru", "1Sa", "2Sa", "1Ki", "2Ki", "1Ch", "2Ch", "Ezr", "Ne", "Es", "Job", "Ps", "Pr", "Ec", "Ca", "Isa", "Jer", "La", "Eze", "Da", "Ho", "Joe", "Am", "Ob", "Jon", "Mic", "Na", "Hab", "Zep", "Hag", "Zec", "Mal"];
+      break;
+
+    case 'nwt_bookAbbrev2_bce':
+      return ["Gen.", "Ex.", "Lev.", "Num.", "Deut.", "Josh.", "Judg.", "Ruth", "1 Sam.", "2 Sam.", "1 Ki.", "2 Ki.", "1 Chron.", "2 Chron.", "Ezra", "Neh.", "Esther", "Job", "Ps.", "Prov.", "Eccl.", "Song of Sol.", "Isa.", "Jer.", "Lam.", "Ezek.", "Dan.", "Hos.", "Joel", "Amos", "Obad.", "Jonah", "Mic.", "Nah.", "Hab.", "Zeph.", "Hag.", "Zech.", "Mal."];
+      break;
+
+    case 'nwt_bookName_ce':
+      return ["Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"];
+      break;
+
+    case 'nwt_bookAbbrev1_ce':
+      return ["Mt", "Mr", "Lu", "Joh", "Ac", "Ro", "1Co", "2Co", "Ga", "Eph", "Php", "Col", "1Th", "2Th", "1Ti", "2Ti", "Tit", "Phm", "Heb", "Jas", "1Pe", "2Pe", "1Jo", "2Jo", "3Jo", "Jude", "Re"];
+      break;
+
+    case 'nwt_bookAbbrev2_ce':
+      return ["Matt.", "Mark", "Luke", "John", "Acts", "Rom.", "1 Cor.", "2 Cor.", "Gal.", "Eph.", "Phil.", "Col.", "1 Thess.", "2 Thess.", "1 Tim.", "2 Tim.", "Titus", "Philem.", "Heb.", "Jas.", "1 Pet.", "2 Pet.", "1 John", "2 John", "3 John", "Jude", "Rev."];
+      break;
+
     case 'single_chapter_bible_nums':
       return [31, 57, 63, 64, 65];
       break;
@@ -364,12 +520,20 @@ function consts(const_name) {
     // Make sure that entries below exist in function get_url > switch (bible_version)
     case 'bible_versions':
       return {
-        wol_nwt: 'WOL - New World Translation (NWT)',
-        wol_nwtsty: 'WOL - NWT Study Bible',
-        wol_nwtrbi8: 'WOL - NWT Reference Bible',
         nwt: 'New World Translation (NWT)',
+        nwt_wol: 'New World Translation (NWT) (WOL)',
         nwtsty: 'NWT Study Bible',
-        rbi8: 'NWT Reference Bible'
+        nwtsty_wol: 'NWT Study Bible (WOL)',
+        nwtrbi8: 'NWT Reference Bible',
+        nwtrbi8_wol: 'NWT Reference Bible (WOL)',
+        kjv_jw: 'King James Version of 1611',
+        kjw_wol: 'King James Version of 1611 (WOL)',
+        by_jw: 'The Bible in Living English',
+        by_wol: 'The Bible in Living English (WOL)',
+        asv_jw: 'American Standard Version',
+        asv_wol: 'American Standard Version (WOL)',
+        ebr_jw: 'Emphasized Bible',
+        ebr_wol: 'Emphasized Bible (WOL)'
       };
       break;
 
