@@ -129,7 +129,6 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
 
     // Pass results to parser
     bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
-
   } 
 
 }
@@ -314,7 +313,7 @@ function get_url(bible_version, bible_name_num, chapter_start, chapter_end, vers
       }
     break;
 
-    case 'wol_nwt':
+    case 'nwt_wol':
       url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/nwt/';
       url_hash1 = '#s=';
       url_hash2 = '&study=discover&v=';
