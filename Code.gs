@@ -122,6 +122,7 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
       search_field = range_elements[n].getElement();
       search_result = search_field.findText(search_string);
       
+      // Because the parser can hit unexpected errors with typos ;-)
       try {
         bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
       } catch {
@@ -137,7 +138,7 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
     search_field = doc.getBody();
     search_result = search_field.findText(search_string);
 
-    // Pass results to parser
+    // Pass results to parser, and because the parser can hit unexpected errors with typos ;-)
     try {
       bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
     } catch {
