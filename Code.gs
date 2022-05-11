@@ -102,6 +102,10 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
   var search_field, search_result;
   var selection = doc.getSelection();
 
+  var err_msg_title = 'Oops!';
+  var err_msg1 = 'There was an error processing this line of text:\n\n';
+  var err_msg2 = '\n\nIs there a typo?';
+
   // Search for Bible references
   if (single_chapters.includes(bible_num)) {
     var search_string = bible_name + ' [0-9 ,-]+';
@@ -118,7 +122,14 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
       search_field = range_elements[n].getElement();
       search_result = search_field.findText(search_string);
       
-      bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+      // Because the parser can hit unexpected errors with typos ;-)
+      try {
+        bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+      } catch {
+        var ui = DocumentApp.getUi();
+        ui.alert(err_msg_title, err_msg1 + search_result.getElement().asText().getText() + err_msg2, ui.ButtonSet.OK);
+      }
+
     }
 
   } else {
@@ -127,8 +138,14 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
     search_field = doc.getBody();
     search_result = search_field.findText(search_string);
 
-    // Pass results to parser
-    bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+    // Pass results to parser, and because the parser can hit unexpected errors with typos ;-)
+    try {
+      bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+    } catch {
+      var ui = DocumentApp.getUi();
+      ui.alert(err_msg_title, err_msg1 + search_result.getElement().asText().getText() + err_msg2, ui.ButtonSet.OK);
+    }
+
   } 
 
 }
