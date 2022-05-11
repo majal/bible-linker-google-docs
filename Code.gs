@@ -50,7 +50,11 @@ function create_menu() {
   }
 
   // Create menu 
-  menu.addSubMenu(submenu_bible_ver).addToUi();
+  menu
+    .addSubMenu(submenu_bible_ver)
+    .addSeparator()
+    .addItem('📝⠀Study tools', 'study_tools')
+    .addToUi();
 
 }
 
@@ -62,6 +66,59 @@ for (let n=0; n < bible_versions_keys.length; n++) {
   let key = bible_versions_keys[n];
   let dynamic_name_bible_linker = 'bible_linker_' + key;
   this[dynamic_name_bible_linker] = function() { bible_linker(key); };
+}
+
+
+function study_tools() {
+  var html_content = `
+  <style>
+    html {font-family: "Open Sans", Arial, sans-serif;}
+
+    li {padding: 0 0 20px 0;}
+
+    .button {
+      background-color: #008CBA;
+      border: 2px solid #008CBA;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #FFF;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      margin: 30px auto 10px auto;
+      padding: 12px 24px;
+      display:block;
+      transition-duration: 0.4s;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.24), 0 9px 50px 0 rgba(0,0,0,0.19);
+    }
+
+    .button:active {
+      box-shadow: 0 2px 50px 0 rgba(0,0,0,0.24), 0 5px 10px 0 rgba(0,0,0,0.19);
+      transform: translateY(4px);
+    }
+  </style>
+  
+  <base target="_blank">
+
+  <p>Tools to help you get a deeper understanding of the Bible:</p>
+
+  <ul>
+    <li><strong><a href="https://wol.jw.org/">Watchtower Online Library</a> (WOL)</strong> - A research tool to find explanatory articles about Bible verses and topics.</li>
+    <li><strong><a href="https://www.jw.org/finder?docid=802013025">JW Library</a></strong> - Bible library in your pocket.</li>
+    <li><strong><a href="https://www.jw.org/finder?docid=1011539">Study tools</a></strong> on <a href="https://www.jw.org/">jw.org</a>.</li>
+  </ul>
+
+  <input class="button" type="button" value="Got it!" onClick="google.script.host.close()" />
+  `
+
+  var htmlOutput = HtmlService
+    .createHtmlOutput(html_content);
+  DocumentApp.getUi().showModalDialog(htmlOutput, 'Bible study tools');
+
 }
 
 
@@ -103,8 +160,8 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
   var selection = doc.getSelection();
 
   var err_msg_title = 'Oops!';
-  var err_msg1 = 'There was an error processing this line of text:\n\n';
-  var err_msg2 = '\n\nIs there a typo?';
+  var err_msg1 = 'There was an error processing this line:\n\n';
+  var err_msg2 = "\n\nIs there a typo? (Tip: It's usually the spaces.)";
 
   // Search for Bible references
   if (single_chapters.includes(bible_num)) {
