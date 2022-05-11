@@ -160,7 +160,7 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
   var selection = doc.getSelection();
 
   var err_msg_title = 'Oops!';
-  var err_msg1 = 'There was an error processing this line:\n\n';
+  var err_msg1 = 'There was an error processing this verse:\n\n';
   var err_msg2 = "\n\nIs there a typo? (Tip: It's usually the spaces.)";
 
   // Search for Bible references
@@ -184,7 +184,8 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
         bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
       } catch {
         var ui = DocumentApp.getUi();
-        ui.alert(err_msg_title, err_msg1 + search_result.getElement().asText().getText() + err_msg2, ui.ButtonSet.OK);
+        let search_result_text_slice = search_result.getElement().asText().getText().slice(search_result.getStartOffset(), search_result.getEndOffsetInclusive() + 1);
+        ui.alert(err_msg_title, err_msg1 + search_result_text_slice + err_msg2, ui.ButtonSet.OK);
       }
 
     }
@@ -200,7 +201,8 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
       bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
     } catch {
       var ui = DocumentApp.getUi();
-      ui.alert(err_msg_title, err_msg1 + search_result.getElement().asText().getText() + err_msg2, ui.ButtonSet.OK);
+      let search_result_text_slice = search_result.getElement().asText().getText().slice(search_result.getStartOffset(), search_result.getEndOffsetInclusive() + 1);
+      ui.alert(err_msg_title, err_msg1 + search_result_text_slice + err_msg2, ui.ButtonSet.OK);
     }
 
   } 
