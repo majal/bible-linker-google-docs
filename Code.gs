@@ -164,9 +164,9 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
 
   // Search for Bible references
   if (single_chapters.includes(bible_num)) {
-    var search_string = bible_name + ' [0-9 ,-]+';
+    var search_string = '(?i)' + bible_name + ' [0-9 ,-]+';
   } else {
-    var search_string = bible_name + ' [0-9]+:[0-9 ,;:-]+';
+    var search_string = '(?i)' + bible_name + ' [0-9]+:[0-9 ,;:-]+';
   }
 
   // Check if selection is present and only process that
