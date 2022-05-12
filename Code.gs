@@ -148,7 +148,6 @@ function bible_linker(bible_version) {
   for (let n=0; n < nwt_bookAbbrev2.length; n++) {
     bible_search(doc, bible_version, nwt_bookAbbrev2[n], n+1);
   }
-
 }
 
 
@@ -178,11 +177,24 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
     for (let n=0; n < range_elements.length; n++) {
       search_field = range_elements[n].getElement();
       search_result = search_field.findText(search_string);
+
+      // Note if selection is only a part of the element (single line)
+      search_field_start = range_elements[n].getStartOffset();
+      search_field_end = range_elements[n].getEndOffsetInclusive();
       
       // Because the parser can hit unexpected errors with typos ;-)
       try {
-        bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+
+        // If whole line is selected start and end will be -1
+        if (search_field_start == -1 && search_field_end == -1) {
+          bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
+        } else {
+          bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string, search_field_start, search_field_end);
+        }
+        
       } catch {
+
+        // Show text where error occurred
         var ui = DocumentApp.getUi();
         let search_result_text_slice = search_result.getElement().asText().getText().slice(search_result.getStartOffset(), search_result.getEndOffsetInclusive() + 1);
         ui.alert(err_msg_title, err_msg1 + search_result_text_slice + err_msg2, ui.ButtonSet.OK);
@@ -200,6 +212,8 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
     try {
       bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
     } catch {
+
+      // Show text where error occurred
       var ui = DocumentApp.getUi();
       let search_result_text_slice = search_result.getElement().asText().getText().slice(search_result.getStartOffset(), search_result.getEndOffsetInclusive() + 1);
       ui.alert(err_msg_title, err_msg1 + search_result_text_slice + err_msg2, ui.ButtonSet.OK);
@@ -210,7 +224,7 @@ function bible_search(doc, bible_version, bible_name, bible_num) {
 }
 
 
-function bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string) {
+function bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string, search_field_start, search_field_end) {
 
   // Variable(s) and constant(s)
   var single_chapters = consts('single_chapter_bible_nums');
@@ -308,8 +322,10 @@ function bible_parse(bible_version, bible_name, bible_num, search_result, search
           select_start = search_result_start + offset_reference;
           select_end = select_start + url_text_len - 1;
           
-          // Set links
-          search_result_astext.setLinkUrl(select_start, select_end, url);
+          // Set links if there is no selection or if selection exists and it is within the selection
+          if ((!search_field_start && !search_field_end) || (search_field_start == -1 && search_field_end == -1) || (select_start >= search_field_start && select_end <= search_field_end)) {
+            search_result_astext.setLinkUrl(select_start, select_end, url);
+          }
           
           // Add to reference offset, plus two for comma/colon and space
           offset_reference += url_text_len + 2;
@@ -349,8 +365,10 @@ function bible_parse(bible_version, bible_name, bible_num, search_result, search
         select_start = search_result_start + offset_reference;
         select_end = select_start + url_text_len - 1;
         
-        // Set links
-        search_result_astext.setLinkUrl(select_start, select_end, url);
+        // Set links if there is no selection or if selection exists and it is within the selection
+        if ((!search_field_start && !search_field_end) || (search_field_start == -1 && search_field_end == -1) || (select_start >= search_field_start && select_end <= search_field_end)) { 
+          search_result_astext.setLinkUrl(select_start, select_end, url);
+        }
 
         // Add to reference offset, plus two for comma/colon and space
         offset_reference += url_text_len + 2
