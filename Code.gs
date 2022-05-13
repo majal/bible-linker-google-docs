@@ -140,8 +140,15 @@ function bible_linker(bible_version) {
 
   // Run parser for each Bible name
   for (let n=0; n < nwt_bookName.length; n++) {
-    bible_search(doc, bible_version, nwt_bookName[n], n+1);
+    if (Array.isArray(nwt_bookName[n])) {
+      for (let m=0; m < nwt_bookName[n].length; m++) {
+        bible_search(doc, bible_version, nwt_bookName[n][m], n+1);
+      }
+    } else {
+      bible_search(doc, bible_version, nwt_bookName[n], n+1);
+    }
   }
+
   for (let n=0; n < nwt_bookAbbrev1.length; n++) {
     bible_search(doc, bible_version, nwt_bookAbbrev1[n], n+1);
   }
@@ -562,7 +569,7 @@ function consts(const_name) {
   switch (const_name) {
 
     case 'nwt_bookName':
-      return ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalm", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"];
+      return ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", ["Psalm", "Psalms"], "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"];
       break;
 
     case 'nwt_bookAbbrev1':
