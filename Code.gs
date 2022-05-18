@@ -77,8 +77,8 @@ function study_tools() {
     li {padding: 0 0 20px 0;}
 
     .button {
-      background-color: #008CBA;
-      border: 2px solid #008CBA;
+      background-color: #326b8c;
+      border: 2px solid #326b8c;
       border-radius: 8px;
       font-weight: bold;
       color: #FFF;
