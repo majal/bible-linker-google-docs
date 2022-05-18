@@ -33,7 +33,7 @@ function create_menu() {
   // Set lastest used Bible version to the menu
   let last_used_bible_label = bible_versions[last_used_bible_version];
   let dynamic_name_bible_linker = 'bible_linker_' + last_used_bible_version;
-  let search_label = '🔗⠀Link verses using ' + last_used_bible_label;
+  let search_label = '🔗  Link verses using ' + last_used_bible_label;
 
   // Set menu
   var ui = DocumentApp.getUi();
@@ -41,11 +41,11 @@ function create_menu() {
     .addItem(search_label, dynamic_name_bible_linker)
 
   // Set Bible version dynamic submenus
-  var submenu_bible_ver = ui.createMenu('📖⠀Choose Bible version');
+  var submenu_bible_ver = ui.createMenu('📖  Choose Bible version');
   for (let n=0; n < bible_versions_keys.length; n++) {
     let key = bible_versions_keys[n];
     let dynamic_name_bible_linker = 'bible_linker_' + key;
-    let last_used_pointer = (last_used_bible_version == key) ? '▸ ⠀' : '⠀⠀';
+    let last_used_pointer = (last_used_bible_version == key) ? '▸  ' : '    ';
     submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
   }
 
@@ -53,7 +53,7 @@ function create_menu() {
   menu
     .addSubMenu(submenu_bible_ver)
     .addSeparator()
-    .addItem('📝⠀Study tools', 'study_tools')
+    .addItem('📝  Study tools', 'study_tools')
     .addToUi();
 
 }
@@ -77,8 +77,8 @@ function study_tools() {
     li {padding: 0 0 20px 0;}
 
     .button {
-      background-color: #326b8c;
-      border: 2px solid #326b8c;
+      background-color: #326B8C;
+      border: 2px solid #326B8C;
       border-radius: 8px;
       font-weight: bold;
       color: #FFF;
