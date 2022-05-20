@@ -1,1 +1,1 @@
-# Bible Linker
+# Bible Linker for Google Docs
