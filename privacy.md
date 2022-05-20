@@ -1,5 +1,5 @@
 ---
-title: Bible linker for Google Docs
+title: Bible Linker for Google Docs
 ---
 
 ## Privacy Policy
