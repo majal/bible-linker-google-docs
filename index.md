@@ -1,1 +1,1 @@
-## Welcome to Bible Linker
+# Bible Linker
