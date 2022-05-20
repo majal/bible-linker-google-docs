@@ -1,4 +1,8 @@
-# Privacy Policy
+---
+title: Bible linker for Google Docs
+---
+
+## Privacy Policy
 
 **Bible Linker does not collect any of your data.** Period. ('cause this ain't business, you know 😁)
 
