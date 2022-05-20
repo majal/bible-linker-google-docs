@@ -1,6 +1,6 @@
----
+layout: page
 title: Bible Linker for Google Docs
----
+permalink: /terms/
 
 ## Terms of Use
 
