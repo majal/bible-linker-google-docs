@@ -12,7 +12,7 @@ Of course it uses Google APIs to access your document to create links in them. I
 
 Bible Linker's temporary access to your data follows [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy).
 
-Check the code, it's all there 😉 [https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs]([url](https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs))
+Check the code, it's all there 😉 [https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs](https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs)
 
 Best,\
 Majal Mirasol\
