@@ -1,5 +1,4 @@
 ---
-layout: page
 title: Bible Linker for Google Docs
 permalink: /privacy/
 ---
