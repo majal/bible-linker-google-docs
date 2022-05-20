@@ -1,3 +1,8 @@
+---
+layout: default
+title: Bible linker for Google Docs
+---
+
 ## How to use
 1. In your Google Document, click **Extensions > Apps Script.**
 2. In the page that will open, **copy and paste** the contents of **[Code.gs](https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs).**
