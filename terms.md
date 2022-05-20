@@ -1,3 +1,9 @@
+---
+title: Bible linker for Google Docs
+---
+
+## Terms of Use
+
 MIT License
 
 Copyright (c) 2022 Majal Mirasol
