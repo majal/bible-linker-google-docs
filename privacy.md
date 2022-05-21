@@ -1,6 +1,6 @@
 ---
 title: Bible Linker Privacy Policy
-permalink: /privacy/
+permalink: /privacy
 ---
 
 ## Privacy Policy
