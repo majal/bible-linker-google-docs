@@ -1,5 +1,5 @@
 ---
-title: Bible Linker for Google Docs
+title: Bible Linker Terms of Use
 permalink: /terms/
 ---
 
