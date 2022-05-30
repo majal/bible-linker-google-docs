@@ -10,21 +10,28 @@
 
 
 function onInstall(e) {
+
   onOpen(e);
+
 }
 
 
 function onOpen(e) {
-  create_menu();
+
+  // Get lastest used Bible version by user
+  if (e && e.authMode == ScriptApp.AuthMode.NONE) {
+    var last_used_bible_version = 'nwtsty_wol';
+  } else {
+    const userProperties = PropertiesService.getUserProperties();
+    var last_used_bible_version = userProperties.getProperty('last_used_bible_version');
+  }
+
+  create_menu(last_used_bible_version);
+
 }
 
 
-function create_menu() {
-
-  // Get lastest used Bible version by user
-  const userProperties = PropertiesService.getUserProperties();
-  var last_used_bible_version = userProperties.getProperty('last_used_bible_version');
-  if (last_used_bible_version == null) last_used_bible_version = 'nwtsty_wol';
+function create_menu(last_used_bible_version) {
 
   // Pull supported Bible versions
   const bible_versions = consts('bible_versions');
