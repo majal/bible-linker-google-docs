@@ -20,7 +20,7 @@ This app will find Bible verses in your Google Document and then turn them into 
 **Tip:** If there is no selected text, Bible Linker will process the whole document. If you **highlighted a selection,** it will only create links in that selected portion of the document.
 
 ## Improving the script
-Coders are welcome to improve the script. It's open sourced, MIT license.
+Coders are welcome to improve the script. It's open source. MIT license.
 
 ### Things that could be worked on:
 * Find and fix bugs
