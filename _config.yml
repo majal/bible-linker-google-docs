@@ -1,3 +1,3 @@
 theme: jekyll-theme-cayman
 title: Bible Linker for Google Docs
-description: A Google Documents Apps Script that searches for Bible verses and creates links to a selection of online Bible sources
+description: A Google Documents Apps Script and Add-on that searches for Bible verses and converts them to links
