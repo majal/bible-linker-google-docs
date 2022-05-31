@@ -24,6 +24,7 @@ function onOpen(e) {
   } else {
     const userProperties = PropertiesService.getUserProperties();
     var last_used_bible_version = userProperties.getProperty('last_used_bible_version');
+    if (last_used_bible_version == null) last_used_bible_version = 'nwtsty_wol';
   }
 
   create_menu(last_used_bible_version);
