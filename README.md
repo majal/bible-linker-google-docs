@@ -16,7 +16,7 @@ A Google Documents Apps Script and Add-on that searches for Bible verses and con
 **Tip:** If there is no selected text, Bible Linker will process the whole document. If you **highlighted a selection,** it will only create links in that selected portion of the document.
 
 ## Improving the script
-Coders are welcome to improve the script. It's open source, MIT license.
+Coders are welcome to improve the script. It's open source. MIT license.
 
 ### Things that could be worked on:
 * Find and fix bugs
