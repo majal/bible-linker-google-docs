@@ -77,59 +77,6 @@ for (let n=0; n < bible_versions_keys.length; n++) {
 }
 
 
-function study_tools() {
-  var html_content = `
-  <style>
-    html {font-family: "Open Sans", Arial, sans-serif;}
-
-    li {padding: 0 0 20px 0;}
-
-    .button {
-      background-color: #326B8C;
-      border: 2px solid #326B8C;
-      border-radius: 8px;
-      font-weight: bold;
-      color: #FFF;
-      text-align: center;
-      text-decoration: none;
-      font-size: 16px;
-      margin: 30px auto 10px auto;
-      padding: 12px 24px;
-      display:block;
-      transition-duration: 0.4s;
-      cursor: pointer;
-    }
-
-    .button:hover {
-      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.24), 0 9px 50px 0 rgba(0,0,0,0.19);
-    }
-
-    .button:active {
-      box-shadow: 0 2px 50px 0 rgba(0,0,0,0.24), 0 5px 10px 0 rgba(0,0,0,0.19);
-      transform: translateY(4px);
-    }
-  </style>
-  
-  <base target="_blank">
-
-  <p>Tools to help you get a deeper understanding of the Bible:</p>
-
-  <ul>
-    <li><strong><a href="https://wol.jw.org/">Watchtower Online Library</a> (WOL)</strong> - A research tool to find explanatory articles about Bible verses and topics.</li>
-    <li><strong><a href="https://www.jw.org/finder?docid=802013025">JW Library</a></strong> - Bible library in your pocket.</li>
-    <li><strong><a href="https://www.jw.org/finder?docid=1011539">Study tools</a></strong> on <a href="https://www.jw.org/">jw.org</a>.</li>
-  </ul>
-
-  <input class="button" type="button" value="Got it!" onClick="google.script.host.close()" />
-  `
-
-  var htmlOutput = HtmlService
-    .createHtmlOutput(html_content);
-  DocumentApp.getUi().showModalDialog(htmlOutput, 'Bible study tools');
-
-}
-
-
 function bible_linker(bible_version) {
 
   // Initialize Google Docs
@@ -139,7 +86,7 @@ function bible_linker(bible_version) {
   if (bible_version == undefined || bible_version == null) bible_version = 'nwtsty_wol';
   const userProperties = PropertiesService.getUserProperties();
   userProperties.setProperty('last_used_bible_version', bible_version);
-  create_menu();
+  create_menu(bible_version);
 
   // Get names of Bible books
   var nwt_bookName = consts('nwt_bookName');
@@ -615,5 +562,58 @@ function consts(const_name) {
     default:
       undefined;
   }
+
+}
+
+
+function study_tools() {
+  var html_content = `
+  <style>
+    html {font-family: "Open Sans", Arial, sans-serif;}
+
+    li {padding: 0 0 20px 0;}
+
+    .button {
+      background-color: #326B8C;
+      border: 2px solid #326B8C;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #FFF;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      margin: 30px auto 10px auto;
+      padding: 12px 24px;
+      display:block;
+      transition-duration: 0.4s;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.24), 0 9px 50px 0 rgba(0,0,0,0.19);
+    }
+
+    .button:active {
+      box-shadow: 0 2px 50px 0 rgba(0,0,0,0.24), 0 5px 10px 0 rgba(0,0,0,0.19);
+      transform: translateY(4px);
+    }
+  </style>
+  
+  <base target="_blank">
+
+  <p>Tools to help you get a deeper understanding of the Bible:</p>
+
+  <ul>
+    <li><strong><a href="https://wol.jw.org/">Watchtower Online Library</a> (WOL)</strong> - A research tool to find explanatory articles about Bible verses and topics.</li>
+    <li><strong><a href="https://www.jw.org/finder?docid=802013025">JW Library</a></strong> - Bible library in your pocket.</li>
+    <li><strong><a href="https://www.jw.org/finder?docid=1011539">Study tools</a></strong> on <a href="https://www.jw.org/">jw.org</a>.</li>
+  </ul>
+
+  <input class="button" type="button" value="Got it!" onClick="google.script.host.close()" />
+  `
+
+  var htmlOutput = HtmlService
+    .createHtmlOutput(html_content);
+  DocumentApp.getUi().showModalDialog(htmlOutput, 'Bible study tools');
 
 }
