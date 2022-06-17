@@ -92,6 +92,7 @@ function bible_linker(bible_version) {
   var nwt_bookName = consts('nwt_bookName');
   var nwt_bookAbbrev1 = consts('nwt_bookAbbrev1');
   var nwt_bookAbbrev2 = consts('nwt_bookAbbrev2');
+  var nwt_tagalogBookName = consts('nwt_tagalogBookName');
 
   // Run parser for each Bible name
   for (let n=0; n < nwt_bookName.length; n++) {
@@ -103,6 +104,17 @@ function bible_linker(bible_version) {
       bible_search(doc, bible_version, nwt_bookName[n], n+1);
     }
   }
+// tagalogBookNames
+  for (let n=0; n < nwt_tagalogBookName.length; n++) {
+    if (Array.isArray(nwt_tagalogBookName[n])) {
+      for (let m=0; m < nwt_tagalogBookName[n].length; m++) {
+        bible_search(doc, bible_version, nwt_tagalogBookName[n][m], n+1);
+      }
+    } else {
+      bible_search(doc, bible_version, nwt_tagalogBookName[n], n+1);
+    }
+  }
+//end
 
   for (let n=0; n < nwt_bookAbbrev1.length; n++) {
     bible_search(doc, bible_version, nwt_bookAbbrev1[n], n+1);
@@ -513,6 +525,33 @@ case 'asv_jw':
       }
     break;
 
+
+// Tagalog NWT(Study Edition and 2019 Version)
+
+//Edisyon sa Pag-aaral
+    case 'nwt_tl':
+      url_head = 'https://www.jw.org/finder?wtlocale=TG&pub=nwtsty&bible=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
+      } else {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
+      }
+    break;
+
+//2019 na Rebisyon
+    case 'nwt_tl19':
+      url_head = 'https://www.jw.org/finder?wtlocale=TG&pub=nwt&bible=';
+
+      if (chapter_start == chapter_end && verse_start == verse_end) {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
+      } else {
+        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
+      }
+    break;
+
+//// end of lines tagalog support
+
     default:
       undefined;
   }
@@ -535,6 +574,11 @@ function consts(const_name) {
       return ["Gen.", "Ex.", "Lev.", "Num.", "Deut.", "Josh.", "Judg.", "Ruth", "1 Sam.", "2 Sam.", "1 Ki.", "2 Ki.", "1 Chron.", "2 Chron.", "Ezra", "Neh.", "Esther", "Job", "Ps.", "Prov.", "Eccl.", "Song of Sol.", "Isa.", "Jer.", "Lam.", "Ezek.", "Dan.", "Hos.", "Joel", "Amos", "Obad.", "Jonah", "Mic.", "Nah.", "Hab.", "Zeph.", "Hag.", "Zech.", "Mal.", "Matt.", "Mark", "Luke", "John", "Acts", "Rom.", "1 Cor.", "2 Cor.", "Gal.", "Eph.", "Phil.", "Col.", "1 Thess.", "2 Thess.", "1 Tim.", "2 Tim.", "Titus", "Philem.", "Heb.", "Jas.", "1 Pet.", "2 Pet.", "1 John", "2 John", "3 John", "Jude", "Rev."];
       break;
 
+// Tagalog BookNames 
+    case 'nwt_tagalogBookName':  
+      return ["Genesis", "Exodo", "Levitico", "Bilang", "Deuteronomio", "Josue", "Hukom", "Ruth", "1 Samuel", "2 Samuel", "1 Hari", "2 Hari", "1 Cronica", "2 Cronica", "Ezra", "Nehemias", "Esther", "Job", "Awit", "Kawikaan", "Eclesiastes", "Awit ni Solomon", "Isaias", "Jeremias", "Panaghoy", "Ezekiel", "Daniel", "Oseas", "Joel", "Amos", "Obadias", "Jonas", "Mikas", "Nahum", "Habakuk", "Zefanias", "Hagai", "Zacarias", "Malakias", "Mateo", "Marcos", "Lucas", "Juan", "Gawa", "Roma", "1 Corinto", "2 Corinto", "Galacia", "Efeso", "Filipos", "Colosas", "1 Tesalonica", "2 Tesalonica", "1 Timoteo", "2 Timoteo", "Tito", "Filemon", "Hebreo", "Santiago", "1 Pedro", "2 Pedro", "1 Juan", "2 Juan", "3 Juan", "Judas", "Apocalipsis"];
+      break;
+
     case 'single_chapter_bible_nums':
       return [31, 57, 63, 64, 65];
       break;
@@ -542,6 +586,8 @@ function consts(const_name) {
     // Make sure that entries below exist in function get_url > switch (bible_version)
     case 'bible_versions':
       return {
+        nwt_tl: 'Edisyon sa Pag-aaral(NWT_TL)',
+        nwt_tl19: '2019 na Rebisyon(NWT_TL19)',
         nwt: 'New World Translation (NWT)',
         nwt_wol: 'New World Translation (NWT) (WOL)',
         nwtsty: 'NWT Study Bible',
