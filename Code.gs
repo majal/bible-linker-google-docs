@@ -270,10 +270,10 @@ function bible_parse(bible_version, bible_name, bible_num, search_result, search
           // Get verse(s)
           if (bibleref_split[n][m].includes(':')) {
             verse_start = bibleref_split[n][m].match(/:[0-9]+/).toString().replace(':', '');
-            verse_end = bibleref_split[n][m].match(/[0-9]+$/).toString().replace(':', '');
+            verse_end = bibleref_split[n][m].match(/[0-9]+\s*$/).toString().replace(':', '');
           } else {
-            verse_start = bibleref_split[n][m].match(/ [0-9]+/).toString();
-            verse_end = bibleref_split[n][m].match(/[0-9]+$/).toString();
+            verse_start = bibleref_split[n][m].match(/\s[0-9]+/).toString();
+            verse_end = bibleref_split[n][m].match(/[0-9]+\s*$/).toString();
           }
 
           // Get url link
@@ -312,11 +312,11 @@ function bible_parse(bible_version, bible_name, bible_num, search_result, search
 
         // Get verse(s)
         if (single_chapters.includes(bible_num)) {
-          verse_start = bibleref_split[n].match(/ [0-9]+/).toString();
-          verse_end = bibleref_split[n].match(/[0-9]+$/).toString();
+          verse_start = bibleref_split[n].match(/\s[0-9]+/).toString();
+          verse_end = bibleref_split[n].match(/[0-9]+\s*$/).toString();
         } else {
           verse_start = bibleref_split[n].match(/:[0-9]+/).toString().replace(':', '');
-          verse_end = bibleref_split[n].match(/[0-9]+$/).toString().replace(':', '');
+          verse_end = bibleref_split[n].match(/[0-9]+\s*$/).toString().replace(':', '');
         }
 
         // Get url link
