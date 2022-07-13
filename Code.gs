@@ -94,6 +94,14 @@ function bible_linker(bible_version) {
   var nwt_bookAbbrev2 = consts('nwt_bookAbbrev2');
 
   // Run parser for each Bible name
+  for (let n=0; n < nwt_bookAbbrev2.length; n++) {
+    bible_search(doc, bible_version, nwt_bookAbbrev2[n], n+1);
+  }
+
+  for (let n=0; n < nwt_bookAbbrev1.length; n++) {
+    bible_search(doc, bible_version, nwt_bookAbbrev1[n], n+1);
+  }
+
   for (let n=0; n < nwt_bookName.length; n++) {
     if (Array.isArray(nwt_bookName[n])) {
       for (let m=0; m < nwt_bookName[n].length; m++) {
@@ -104,12 +112,6 @@ function bible_linker(bible_version) {
     }
   }
 
-  for (let n=0; n < nwt_bookAbbrev1.length; n++) {
-    bible_search(doc, bible_version, nwt_bookAbbrev1[n], n+1);
-  }
-  for (let n=0; n < nwt_bookAbbrev2.length; n++) {
-    bible_search(doc, bible_version, nwt_bookAbbrev2[n], n+1);
-  }
 }
 
 
