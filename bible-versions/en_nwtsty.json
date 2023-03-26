@@ -16,8 +16,7 @@
       "officialSingularAbbreviation": "Ge",
       "standardPluralBookName": "Genesis",
       "standardPluralAbbreviation": "Gen.",
-      "officialPluralAbbreviation": "Ge",
-      "bookDisplayTitle": "The Book of Genesis"
+      "officialPluralAbbreviation": "Ge"
     },
     "2": {
       "chapterCount": "40",
@@ -29,8 +28,7 @@
       "officialSingularAbbreviation": "Ex",
       "standardPluralBookName": "Exodus",
       "standardPluralAbbreviation": "Ex.",
-      "officialPluralAbbreviation": "Ex",
-      "bookDisplayTitle": "The Book of Exodus"
+      "officialPluralAbbreviation": "Ex"
     },
     "3": {
       "chapterCount": "27",
@@ -42,8 +40,7 @@
       "officialSingularAbbreviation": "Le",
       "standardPluralBookName": "Leviticus",
       "standardPluralAbbreviation": "Lev.",
-      "officialPluralAbbreviation": "Le",
-      "bookDisplayTitle": "The Book of Leviticus"
+      "officialPluralAbbreviation": "Le"
     },
     "4": {
       "chapterCount": "36",
@@ -55,8 +52,7 @@
       "officialSingularAbbreviation": "Nu",
       "standardPluralBookName": "Numbers",
       "standardPluralAbbreviation": "Num.",
-      "officialPluralAbbreviation": "Nu",
-      "bookDisplayTitle": "The Book of Numbers"
+      "officialPluralAbbreviation": "Nu"
     },
     "5": {
       "chapterCount": "34",
@@ -68,8 +64,7 @@
       "officialSingularAbbreviation": "De",
       "standardPluralBookName": "Deuteronomy",
       "standardPluralAbbreviation": "Deut.",
-      "officialPluralAbbreviation": "De",
-      "bookDisplayTitle": "The Book of Deuteronomy"
+      "officialPluralAbbreviation": "De"
     },
     "6": {
       "chapterCount": "24",
@@ -81,8 +76,7 @@
       "officialSingularAbbreviation": "Jos",
       "standardPluralBookName": "Joshua",
       "standardPluralAbbreviation": "Josh.",
-      "officialPluralAbbreviation": "Jos",
-      "bookDisplayTitle": "The Book of Joshua"
+      "officialPluralAbbreviation": "Jos"
     },
     "7": {
       "chapterCount": "21",
@@ -94,8 +88,7 @@
       "officialSingularAbbreviation": "Jg",
       "standardPluralBookName": "Judges",
       "standardPluralAbbreviation": "Judg.",
-      "officialPluralAbbreviation": "Jg",
-      "bookDisplayTitle": "The Book of Judges"
+      "officialPluralAbbreviation": "Jg"
     },
     "8": {
       "chapterCount": "4",
@@ -107,8 +100,7 @@
       "officialSingularAbbreviation": "Ru",
       "standardPluralBookName": "Ruth",
       "standardPluralAbbreviation": "Ruth",
-      "officialPluralAbbreviation": "Ru",
-      "bookDisplayTitle": "The Book of Ruth"
+      "officialPluralAbbreviation": "Ru"
     },
     "9": {
       "chapterCount": "31",
@@ -120,8 +112,7 @@
       "officialSingularAbbreviation": "1Sa",
       "standardPluralBookName": "1 Samuel",
       "standardPluralAbbreviation": "1 Sam.",
-      "officialPluralAbbreviation": "1Sa",
-      "bookDisplayTitle": "The First Book of Samuel"
+      "officialPluralAbbreviation": "1Sa"
     },
     "10": {
       "chapterCount": "24",
@@ -133,8 +124,7 @@
       "officialSingularAbbreviation": "2Sa",
       "standardPluralBookName": "2 Samuel",
       "standardPluralAbbreviation": "2 Sam.",
-      "officialPluralAbbreviation": "2Sa",
-      "bookDisplayTitle": "The Second Book of Samuel"
+      "officialPluralAbbreviation": "2Sa"
     },
     "11": {
       "chapterCount": "22",
@@ -146,8 +136,7 @@
       "officialSingularAbbreviation": "1Ki",
       "standardPluralBookName": "1 Kings",
       "standardPluralAbbreviation": "1 Ki.",
-      "officialPluralAbbreviation": "1Ki",
-      "bookDisplayTitle": "The First Book of Kings"
+      "officialPluralAbbreviation": "1Ki"
     },
     "12": {
       "chapterCount": "25",
@@ -159,8 +148,7 @@
       "officialSingularAbbreviation": "2Ki",
       "standardPluralBookName": "2 Kings",
       "standardPluralAbbreviation": "2 Ki.",
-      "officialPluralAbbreviation": "2Ki",
-      "bookDisplayTitle": "The Second Book of Kings"
+      "officialPluralAbbreviation": "2Ki"
     },
     "13": {
       "chapterCount": "29",
@@ -172,8 +160,7 @@
       "officialSingularAbbreviation": "1Ch",
       "standardPluralBookName": "1 Chronicles",
       "standardPluralAbbreviation": "1 Chron.",
-      "officialPluralAbbreviation": "1Ch",
-      "bookDisplayTitle": "The First Book of Chronicles"
+      "officialPluralAbbreviation": "1Ch"
     },
     "14": {
       "chapterCount": "36",
@@ -185,8 +172,7 @@
       "officialSingularAbbreviation": "2Ch",
       "standardPluralBookName": "2 Chronicles",
       "standardPluralAbbreviation": "2 Chron.",
-      "officialPluralAbbreviation": "2Ch",
-      "bookDisplayTitle": "The Second Book of Chronicles"
+      "officialPluralAbbreviation": "2Ch"
     },
     "15": {
       "chapterCount": "10",
@@ -198,8 +184,7 @@
       "officialSingularAbbreviation": "Ezr",
       "standardPluralBookName": "Ezra",
       "standardPluralAbbreviation": "Ezra",
-      "officialPluralAbbreviation": "Ezr",
-      "bookDisplayTitle": "The Book of Ezra"
+      "officialPluralAbbreviation": "Ezr"
     },
     "16": {
       "chapterCount": "13",
@@ -211,8 +196,7 @@
       "officialSingularAbbreviation": "Ne",
       "standardPluralBookName": "Nehemiah",
       "standardPluralAbbreviation": "Neh.",
-      "officialPluralAbbreviation": "Ne",
-      "bookDisplayTitle": "The Book of Nehemiah"
+      "officialPluralAbbreviation": "Ne"
     },
     "17": {
       "chapterCount": "10",
@@ -224,8 +208,7 @@
       "officialSingularAbbreviation": "Es",
       "standardPluralBookName": "Esther",
       "standardPluralAbbreviation": "Esther",
-      "officialPluralAbbreviation": "Es",
-      "bookDisplayTitle": "The Book of Esther"
+      "officialPluralAbbreviation": "Es"
     },
     "18": {
       "chapterCount": "42",
@@ -237,8 +220,7 @@
       "officialSingularAbbreviation": "Job",
       "standardPluralBookName": "Job",
       "standardPluralAbbreviation": "Job",
-      "officialPluralAbbreviation": "Job",
-      "bookDisplayTitle": "The Book of Job"
+      "officialPluralAbbreviation": "Job"
     },
     "19": {
       "chapterCount": "150",
@@ -250,8 +232,7 @@
       "officialSingularAbbreviation": "Ps",
       "standardPluralBookName": "Psalms",
       "standardPluralAbbreviation": "Pss.",
-      "officialPluralAbbreviation": "Pss",
-      "bookDisplayTitle": "The Book of Psalms"
+      "officialPluralAbbreviation": "Pss"
     },
     "20": {
       "chapterCount": "31",
@@ -263,8 +244,7 @@
       "officialSingularAbbreviation": "Pr",
       "standardPluralBookName": "Proverbs",
       "standardPluralAbbreviation": "Prov.",
-      "officialPluralAbbreviation": "Pr",
-      "bookDisplayTitle": "The Book of Proverbs"
+      "officialPluralAbbreviation": "Pr"
     },
     "21": {
       "chapterCount": "12",
@@ -276,8 +256,7 @@
       "officialSingularAbbreviation": "Ec",
       "standardPluralBookName": "Ecclesiastes",
       "standardPluralAbbreviation": "Eccl.",
-      "officialPluralAbbreviation": "Ec",
-      "bookDisplayTitle": "The Book of Ecclesiastes"
+      "officialPluralAbbreviation": "Ec"
     },
     "22": {
       "chapterCount": "8",
@@ -289,8 +268,7 @@
       "officialSingularAbbreviation": "Ca",
       "standardPluralBookName": "Song of Solomon",
       "standardPluralAbbreviation": "Song of Sol.",
-      "officialPluralAbbreviation": "Ca",
-      "bookDisplayTitle": "The Song of Solomon"
+      "officialPluralAbbreviation": "Ca"
     },
     "23": {
       "chapterCount": "66",
@@ -302,8 +280,7 @@
       "officialSingularAbbreviation": "Isa",
       "standardPluralBookName": "Isaiah",
       "standardPluralAbbreviation": "Isa.",
-      "officialPluralAbbreviation": "Isa",
-      "bookDisplayTitle": "The Book of Isaiah"
+      "officialPluralAbbreviation": "Isa"
     },
     "24": {
       "chapterCount": "52",
@@ -315,8 +292,7 @@
       "officialSingularAbbreviation": "Jer",
       "standardPluralBookName": "Jeremiah",
       "standardPluralAbbreviation": "Jer.",
-      "officialPluralAbbreviation": "Jer",
-      "bookDisplayTitle": "The Book of Jeremiah"
+      "officialPluralAbbreviation": "Jer"
     },
     "25": {
       "chapterCount": "5",
@@ -328,8 +304,7 @@
       "officialSingularAbbreviation": "La",
       "standardPluralBookName": "Lamentations",
       "standardPluralAbbreviation": "Lam.",
-      "officialPluralAbbreviation": "La",
-      "bookDisplayTitle": "The Book of Lamentations"
+      "officialPluralAbbreviation": "La"
     },
     "26": {
       "chapterCount": "48",
@@ -341,8 +316,7 @@
       "officialSingularAbbreviation": "Eze",
       "standardPluralBookName": "Ezekiel",
       "standardPluralAbbreviation": "Ezek.",
-      "officialPluralAbbreviation": "Eze",
-      "bookDisplayTitle": "The Book of Ezekiel"
+      "officialPluralAbbreviation": "Eze"
     },
     "27": {
       "chapterCount": "12",
@@ -354,8 +328,7 @@
       "officialSingularAbbreviation": "Da",
       "standardPluralBookName": "Daniel",
       "standardPluralAbbreviation": "Dan.",
-      "officialPluralAbbreviation": "Da",
-      "bookDisplayTitle": "The Book of Daniel"
+      "officialPluralAbbreviation": "Da"
     },
     "28": {
       "chapterCount": "14",
@@ -367,8 +340,7 @@
       "officialSingularAbbreviation": "Ho",
       "standardPluralBookName": "Hosea",
       "standardPluralAbbreviation": "Hos.",
-      "officialPluralAbbreviation": "Ho",
-      "bookDisplayTitle": "The Book of Hosea"
+      "officialPluralAbbreviation": "Ho"
     },
     "29": {
       "chapterCount": "3",
@@ -380,8 +352,7 @@
       "officialSingularAbbreviation": "Joe",
       "standardPluralBookName": "Joel",
       "standardPluralAbbreviation": "Joel",
-      "officialPluralAbbreviation": "Joe",
-      "bookDisplayTitle": "The Book of Joel"
+      "officialPluralAbbreviation": "Joe"
     },
     "30": {
       "chapterCount": "9",
@@ -393,8 +364,7 @@
       "officialSingularAbbreviation": "Am",
       "standardPluralBookName": "Amos",
       "standardPluralAbbreviation": "Amos",
-      "officialPluralAbbreviation": "Am",
-      "bookDisplayTitle": "The Book of Amos"
+      "officialPluralAbbreviation": "Am"
     },
     "31": {
       "chapterCount": "1",
@@ -406,8 +376,7 @@
       "officialSingularAbbreviation": "Ob",
       "standardPluralBookName": "Obadiah",
       "standardPluralAbbreviation": "Obad.",
-      "officialPluralAbbreviation": "Ob",
-      "bookDisplayTitle": "The Book of Obadiah"
+      "officialPluralAbbreviation": "Ob"
     },
     "32": {
       "chapterCount": "4",
@@ -419,8 +388,7 @@
       "officialSingularAbbreviation": "Jon",
       "standardPluralBookName": "Jonah",
       "standardPluralAbbreviation": "Jonah",
-      "officialPluralAbbreviation": "Jon",
-      "bookDisplayTitle": "The Book of Jonah"
+      "officialPluralAbbreviation": "Jon"
     },
     "33": {
       "chapterCount": "7",
@@ -432,8 +400,7 @@
       "officialSingularAbbreviation": "Mic",
       "standardPluralBookName": "Micah",
       "standardPluralAbbreviation": "Mic.",
-      "officialPluralAbbreviation": "Mic",
-      "bookDisplayTitle": "The Book of Micah"
+      "officialPluralAbbreviation": "Mic"
     },
     "34": {
       "chapterCount": "3",
@@ -445,8 +412,7 @@
       "officialSingularAbbreviation": "Na",
       "standardPluralBookName": "Nahum",
       "standardPluralAbbreviation": "Nah.",
-      "officialPluralAbbreviation": "Na",
-      "bookDisplayTitle": "The Book of Nahum"
+      "officialPluralAbbreviation": "Na"
     },
     "35": {
       "chapterCount": "3",
@@ -458,8 +424,7 @@
       "officialSingularAbbreviation": "Hab",
       "standardPluralBookName": "Habakkuk",
       "standardPluralAbbreviation": "Hab.",
-      "officialPluralAbbreviation": "Hab",
-      "bookDisplayTitle": "The Book of Habakkuk"
+      "officialPluralAbbreviation": "Hab"
     },
     "36": {
       "chapterCount": "3",
@@ -471,8 +436,7 @@
       "officialSingularAbbreviation": "Zep",
       "standardPluralBookName": "Zephaniah",
       "standardPluralAbbreviation": "Zeph.",
-      "officialPluralAbbreviation": "Zep",
-      "bookDisplayTitle": "The Book of Zephaniah"
+      "officialPluralAbbreviation": "Zep"
     },
     "37": {
       "chapterCount": "2",
@@ -484,8 +448,7 @@
       "officialSingularAbbreviation": "Hag",
       "standardPluralBookName": "Haggai",
       "standardPluralAbbreviation": "Hag.",
-      "officialPluralAbbreviation": "Hag",
-      "bookDisplayTitle": "The Book of Haggai"
+      "officialPluralAbbreviation": "Hag"
     },
     "38": {
       "chapterCount": "14",
@@ -497,8 +460,7 @@
       "officialSingularAbbreviation": "Zec",
       "standardPluralBookName": "Zechariah",
       "standardPluralAbbreviation": "Zech.",
-      "officialPluralAbbreviation": "Zec",
-      "bookDisplayTitle": "The Book of Zechariah"
+      "officialPluralAbbreviation": "Zec"
     },
     "39": {
       "chapterCount": "4",
@@ -510,8 +472,7 @@
       "officialSingularAbbreviation": "Mal",
       "standardPluralBookName": "Malachi",
       "standardPluralAbbreviation": "Mal.",
-      "officialPluralAbbreviation": "Mal",
-      "bookDisplayTitle": "The Book of Malachi"
+      "officialPluralAbbreviation": "Mal"
     },
     "40": {
       "chapterCount": "28",
@@ -523,8 +484,7 @@
       "officialSingularAbbreviation": "Mt",
       "standardPluralBookName": "Matthew",
       "standardPluralAbbreviation": "Matt.",
-      "officialPluralAbbreviation": "Mt",
-      "bookDisplayTitle": "The Good News According to Matthew"
+      "officialPluralAbbreviation": "Mt"
     },
     "41": {
       "chapterCount": "16",
@@ -536,8 +496,7 @@
       "officialSingularAbbreviation": "Mr",
       "standardPluralBookName": "Mark",
       "standardPluralAbbreviation": "Mark",
-      "officialPluralAbbreviation": "Mr",
-      "bookDisplayTitle": "The Good News According to Mark"
+      "officialPluralAbbreviation": "Mr"
     },
     "42": {
       "chapterCount": "24",
@@ -549,8 +508,7 @@
       "officialSingularAbbreviation": "Lu",
       "standardPluralBookName": "Luke",
       "standardPluralAbbreviation": "Luke",
-      "officialPluralAbbreviation": "Lu",
-      "bookDisplayTitle": "The Good News According to Luke"
+      "officialPluralAbbreviation": "Lu"
     },
     "43": {
       "chapterCount": "21",
@@ -562,8 +520,7 @@
       "officialSingularAbbreviation": "Joh",
       "standardPluralBookName": "John",
       "standardPluralAbbreviation": "John",
-      "officialPluralAbbreviation": "Joh",
-      "bookDisplayTitle": "The Good News According to John"
+      "officialPluralAbbreviation": "Joh"
     },
     "44": {
       "chapterCount": "28",
@@ -575,8 +532,7 @@
       "officialSingularAbbreviation": "Ac",
       "standardPluralBookName": "Acts",
       "standardPluralAbbreviation": "Acts",
-      "officialPluralAbbreviation": "Ac",
-      "bookDisplayTitle": "Acts of Apostles"
+      "officialPluralAbbreviation": "Ac"
     },
     "45": {
       "chapterCount": "16",
@@ -588,8 +544,7 @@
       "officialSingularAbbreviation": "Ro",
       "standardPluralBookName": "Romans",
       "standardPluralAbbreviation": "Rom.",
-      "officialPluralAbbreviation": "Ro",
-      "bookDisplayTitle": "The Letter to the Romans"
+      "officialPluralAbbreviation": "Ro"
     },
     "46": {
       "chapterCount": "16",
@@ -601,8 +556,7 @@
       "officialSingularAbbreviation": "1Co",
       "standardPluralBookName": "1 Corinthians",
       "standardPluralAbbreviation": "1 Cor.",
-      "officialPluralAbbreviation": "1Co",
-      "bookDisplayTitle": "The First Letter to the Corinthians"
+      "officialPluralAbbreviation": "1Co"
     },
     "47": {
       "chapterCount": "13",
@@ -614,8 +568,7 @@
       "officialSingularAbbreviation": "2Co",
       "standardPluralBookName": "2 Corinthians",
       "standardPluralAbbreviation": "2 Cor.",
-      "officialPluralAbbreviation": "2Co",
-      "bookDisplayTitle": "The Second Letter to the Corinthians"
+      "officialPluralAbbreviation": "2Co"
     },
     "48": {
       "chapterCount": "6",
@@ -627,8 +580,7 @@
       "officialSingularAbbreviation": "Ga",
       "standardPluralBookName": "Galatians",
       "standardPluralAbbreviation": "Gal.",
-      "officialPluralAbbreviation": "Ga",
-      "bookDisplayTitle": "The Letter to the Galatians"
+      "officialPluralAbbreviation": "Ga"
     },
     "49": {
       "chapterCount": "6",
@@ -640,8 +592,7 @@
       "officialSingularAbbreviation": "Eph",
       "standardPluralBookName": "Ephesians",
       "standardPluralAbbreviation": "Eph.",
-      "officialPluralAbbreviation": "Eph",
-      "bookDisplayTitle": "The Letter to the Ephesians"
+      "officialPluralAbbreviation": "Eph"
     },
     "50": {
       "chapterCount": "4",
@@ -653,8 +604,7 @@
       "officialSingularAbbreviation": "Php",
       "standardPluralBookName": "Philippians",
       "standardPluralAbbreviation": "Phil.",
-      "officialPluralAbbreviation": "Php",
-      "bookDisplayTitle": "The Letter to the Philippians"
+      "officialPluralAbbreviation": "Php"
     },
     "51": {
       "chapterCount": "4",
@@ -666,8 +616,7 @@
       "officialSingularAbbreviation": "Col",
       "standardPluralBookName": "Colossians",
       "standardPluralAbbreviation": "Col.",
-      "officialPluralAbbreviation": "Col",
-      "bookDisplayTitle": "The Letter to the Colossians"
+      "officialPluralAbbreviation": "Col"
     },
     "52": {
       "chapterCount": "5",
@@ -679,8 +628,7 @@
       "officialSingularAbbreviation": "1Th",
       "standardPluralBookName": "1 Thessalonians",
       "standardPluralAbbreviation": "1 Thess.",
-      "officialPluralAbbreviation": "1Th",
-      "bookDisplayTitle": "The First Letter to the Thessalonians"
+      "officialPluralAbbreviation": "1Th"
     },
     "53": {
       "chapterCount": "3",
@@ -692,8 +640,7 @@
       "officialSingularAbbreviation": "2Th",
       "standardPluralBookName": "2 Thessalonians",
       "standardPluralAbbreviation": "2 Thess.",
-      "officialPluralAbbreviation": "2Th",
-      "bookDisplayTitle": "The Second Letter to the Thessalonians"
+      "officialPluralAbbreviation": "2Th"
     },
     "54": {
       "chapterCount": "6",
@@ -705,8 +652,7 @@
       "officialSingularAbbreviation": "1Ti",
       "standardPluralBookName": "1 Timothy",
       "standardPluralAbbreviation": "1 Tim.",
-      "officialPluralAbbreviation": "1Ti",
-      "bookDisplayTitle": "The First Letter to Timothy"
+      "officialPluralAbbreviation": "1Ti"
     },
     "55": {
       "chapterCount": "4",
@@ -718,8 +664,7 @@
       "officialSingularAbbreviation": "2Ti",
       "standardPluralBookName": "2 Timothy",
       "standardPluralAbbreviation": "2 Tim.",
-      "officialPluralAbbreviation": "2Ti",
-      "bookDisplayTitle": "The Second Letter to Timothy"
+      "officialPluralAbbreviation": "2Ti"
     },
     "56": {
       "chapterCount": "3",
@@ -731,8 +676,7 @@
       "officialSingularAbbreviation": "Tit",
       "standardPluralBookName": "Titus",
       "standardPluralAbbreviation": "Titus",
-      "officialPluralAbbreviation": "Tit",
-      "bookDisplayTitle": "The Letter to Titus"
+      "officialPluralAbbreviation": "Tit"
     },
     "57": {
       "chapterCount": "1",
@@ -744,8 +688,7 @@
       "officialSingularAbbreviation": "Phm",
       "standardPluralBookName": "Philemon",
       "standardPluralAbbreviation": "Philem.",
-      "officialPluralAbbreviation": "Phm",
-      "bookDisplayTitle": "The Letter to Philemon"
+      "officialPluralAbbreviation": "Phm"
     },
     "58": {
       "chapterCount": "13",
@@ -757,8 +700,7 @@
       "officialSingularAbbreviation": "Heb",
       "standardPluralBookName": "Hebrews",
       "standardPluralAbbreviation": "Heb.",
-      "officialPluralAbbreviation": "Heb",
-      "bookDisplayTitle": "The Letter to the Hebrews"
+      "officialPluralAbbreviation": "Heb"
     },
     "59": {
       "chapterCount": "5",
@@ -770,8 +712,7 @@
       "officialSingularAbbreviation": "Jas",
       "standardPluralBookName": "James",
       "standardPluralAbbreviation": "Jas.",
-      "officialPluralAbbreviation": "Jas",
-      "bookDisplayTitle": "The Letter of James"
+      "officialPluralAbbreviation": "Jas"
     },
     "60": {
       "chapterCount": "5",
@@ -783,8 +724,7 @@
       "officialSingularAbbreviation": "1Pe",
       "standardPluralBookName": "1 Peter",
       "standardPluralAbbreviation": "1 Pet.",
-      "officialPluralAbbreviation": "1Pe",
-      "bookDisplayTitle": "The First Letter of Peter"
+      "officialPluralAbbreviation": "1Pe"
     },
     "61": {
       "chapterCount": "3",
@@ -796,8 +736,7 @@
       "officialSingularAbbreviation": "2Pe",
       "standardPluralBookName": "2 Peter",
       "standardPluralAbbreviation": "2 Pet.",
-      "officialPluralAbbreviation": "2Pe",
-      "bookDisplayTitle": "The Second Letter of Peter"
+      "officialPluralAbbreviation": "2Pe"
     },
     "62": {
       "chapterCount": "5",
@@ -809,8 +748,7 @@
       "officialSingularAbbreviation": "1Jo",
       "standardPluralBookName": "1 John",
       "standardPluralAbbreviation": "1 John",
-      "officialPluralAbbreviation": "1Jo",
-      "bookDisplayTitle": "The First Letter of John"
+      "officialPluralAbbreviation": "1Jo"
     },
     "63": {
       "chapterCount": "1",
@@ -822,8 +760,7 @@
       "officialSingularAbbreviation": "2Jo",
       "standardPluralBookName": "2 John",
       "standardPluralAbbreviation": "2 John",
-      "officialPluralAbbreviation": "2Jo",
-      "bookDisplayTitle": "The Second Letter of John"
+      "officialPluralAbbreviation": "2Jo"
     },
     "64": {
       "chapterCount": "1",
@@ -835,8 +772,7 @@
       "officialSingularAbbreviation": "3Jo",
       "standardPluralBookName": "3 John",
       "standardPluralAbbreviation": "3 John",
-      "officialPluralAbbreviation": "3Jo",
-      "bookDisplayTitle": "The Third Letter of John"
+      "officialPluralAbbreviation": "3Jo"
     },
     "65": {
       "chapterCount": "1",
@@ -848,8 +784,7 @@
       "officialSingularAbbreviation": "Jude",
       "standardPluralBookName": "Jude",
       "standardPluralAbbreviation": "Jude",
-      "officialPluralAbbreviation": "Jude",
-      "bookDisplayTitle": "The Letter of Jude"
+      "officialPluralAbbreviation": "Jude"
     },
     "66": {
       "chapterCount": "22",
@@ -861,8 +796,7 @@
       "officialSingularAbbreviation": "Re",
       "standardPluralBookName": "Revelation",
       "standardPluralAbbreviation": "Rev.",
-      "officialPluralAbbreviation": "Re",
-      "bookDisplayTitle": "The Book of Revelation"
+      "officialPluralAbbreviation": "Re"
     }
   }
 }
