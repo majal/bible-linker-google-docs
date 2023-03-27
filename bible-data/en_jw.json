@@ -6,8 +6,17 @@
     "multiChapters": "[0-9 ,-]+[0-9]",
     "singleChapters": "[0-9]+:[0-9 ,;:-]+[0-9]"
   },
-  "menu": {
-    "title": "Bible Linker"
+  "strings": {
+    "menu": {
+      "title": "Bible Linker v2 (dev)"
+    },
+    "errorMessages": {
+      "parserError": {
+        "title": "Oops!",
+        "messageBefore": "There was an error processing this verse:\n\n",
+        "messageAfter": "\n\nIs there a typo? (Tip: It’s usually the spaces.)", 
+      }
+    }
   },
   "bookNames": {
     "1": [  "Ge",  "Gen.",  "Genesis" ],
