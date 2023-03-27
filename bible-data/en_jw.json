@@ -14,7 +14,7 @@
       "parserError": {
         "title": "Oops!",
         "messageBefore": "There was an error processing this verse:\n\n",
-        "messageAfter": "\n\nIs there a typo? (Tip: It’s usually the spaces.)", 
+        "messageAfter": "\n\nIs there a typo? (Tip: It’s usually the spaces.)"
       }
     }
   },
