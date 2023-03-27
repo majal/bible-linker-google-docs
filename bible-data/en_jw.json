@@ -1,7 +1,9 @@
 {
   "locale": "en",
-  "searchRegex": "[0-9 ,-]+[0-9]",
-  "searchRegeSingleChapters": "[0-9]+:[0-9 ,;:-]+[0-9]",
+  "searchRegex": {
+    "multiChapters": "[0-9 ,-]+[0-9]",
+    "singleChapters": "[0-9]+:[0-9 ,;:-]+[0-9]"
+  },
   "bookCount": 66,
   "bookSingleChapters": [31, 57, 63, 64, 65],
   "menu": {
