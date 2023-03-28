@@ -3,8 +3,8 @@
   "bookCount": 66,
   "bookSingleChapters": [31, 57, 63, 64, 65],
   "searchRegex": {
-    "multiChapters": "[0-9 ,-]+[0-9]",
-    "singleChapters": "[0-9]+:[0-9 ,;:-]+[0-9]"
+    "multiChapters": "[0-9]+:[0-9 ,;:-]+[0-9]",
+    "singleChapters": "[0-9 ,-]+[0-9]"
   },
   "strings": {
     "menu": {
