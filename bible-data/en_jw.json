@@ -34,7 +34,7 @@
         "verse": {
           "targetLength": 3,
           "padString": "0"
-        },
+        }
       }
     },
     "en_jw_nwt_wol": {
