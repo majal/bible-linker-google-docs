@@ -11,7 +11,7 @@
 
 const BIBLE_DATA_DEFAULT='https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json';
 
-function main(bibleDataSelection, linkFormat) {
+function main(bibleDataSelection, bibleVersion) {
 
   // Initialize Google Document
   var doc = DocumentApp.getActiveDocument();
@@ -88,16 +88,16 @@ function main(bibleDataSelection, linkFormat) {
             // If whole line is selected start and end will be -1
             // https://developers.google.com/apps-script/reference/document/range-element#getendoffsetinclusive
             if (searchElementStart == -1 && searchElementEnd == -1) {
-              bibleParse(bibleData, bookNum, searchResult, searchElement, searchRegex);
+              bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex);
             } else {
-              bibleParse(bibleData, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd);
+              bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd);
             };
             
           } catch {
 
             // Show text where search error occurred
             searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
-            ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
+            // ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
           };
 
@@ -112,13 +112,13 @@ function main(bibleDataSelection, linkFormat) {
         // Send found matches to parser
         try {
 
-          bibleParse(bibleData, bookNum, searchResult, searchElement, searchRegex);
+          bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex);
         
         } catch {
 
           // Show text where search error occurred
           searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
-          ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
+          // ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
         };
 
@@ -131,173 +131,80 @@ function main(bibleDataSelection, linkFormat) {
 }; // END: function main(bibleDataSelection)
 
 
-function bibleParse(bibleData, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd) {
+function bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd) {
 
   // Pull default Bible data if nothing was provided
   if ( ! bibleData ) bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_DEFAULT));
 
   // Variable(s) and constant(s)
   var bookSingleChapters = bibleData.bookSingleChapters;
+  var matchRegex = [ '[0-9]+:[0-9]+-[0-9]+:[0-9]+', '[0-9]+:[0-9]+, [0-9]+', '[0-9]+:[0-9]+-[0-9]+', '[0-9]+:[0-9]+' ];
+  var spaceChars = '[ \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000]';
 
   // Cycle through each Bible reference found
   while (searchResult != null) {
 
-    // Set reference start and end
-    var searchResultStart = searchResult.getStartOffset();
-    var searchResultEnd = searchResult.getEndOffsetInclusive();
+    // Get reference start and end offsets
+    let searchResultStart = searchResult.getStartOffset();
+    let searchResultEnd = searchResult.getEndOffsetInclusive();
 
-    // Isolate reference only
-    var searchResultAstext = searchResult.getElement().asText();
-    var searchResultText = searchResultAstext.getText();
-    var searchResultTextSlice = searchResultText.slice(searchResultStart, searchResultEnd + 1);
+    // Isolate reference text
+    let searchResultAstext = searchResult.getElement().asText();
+    let searchResultText = searchResultAstext.getText();
+    let searchResultTextSlice = searchResultText.slice(searchResultStart, searchResultEnd + 1);
 
     Logger.log('|' + searchResultTextSlice + '|');
 
-    /*
-    // Split at semicolon (;)
-    var bibleref_split = searchResultTextSlice.split(';');
-  
-    // Retain verses only, remove if it does not contain colon (:), exception on single chapter books
-    for (let n=0; n < bibleref_split.length; n++) {
-      if (!single_chapters.includes(bookNum) && !bibleref_split[n].includes(':')) {
-        bibleref_split.splice(n, 1);
-        n--;
-      }
-    }
 
-    // Split by comma (,)
-    for (let n=0; n < bibleref_split.length; n++) {
-      if (bibleref_split[n].includes(',')) {
-        bibleref_split[n] = bibleref_split[n].split(',');
+    // Match searchResult with matchRegex-es, longest to shortest
+    let matchResult = null;
+    let i = 0;
+    while ( ! matchResult && i < matchRegex.length ) {      
+      matchResult = searchResultTextSlice.match(bookName + spaceChars + matchRegex[i]);
+      i++;
 
-        // Rejoin if verses are consecutive
-        if (Array.isArray(bibleref_split[n])) {
-          for (let m=1; m < bibleref_split[n].length; m++) {
-            if (parseInt(bibleref_split[n][m-1].match(/[0-9]+$/), 10) + 1 == parseInt(bibleref_split[n][m], 10)) {
-              bibleref_split[n][m-1] += ',' + bibleref_split[n][m];
-              bibleref_split[n].splice(m, 1);
-              m--;
-            }
-          }
+      // Check if matchResult is comma separated
+      if ( matchResult && matchResult[0].match(spaceChars + '[0-9]+:[0-9]+,' + spaceChars + '[0-9]+') ) {
+        let vStart = matchResult[0].match(':[0-9]+')
+        vStart = parseInt(vStart[0].replace(':', ''), 10);
 
-          // Convert array to string if consecutive verses
-          if (bibleref_split[n].length == 1) {
-            bibleref_split[n] = bibleref_split[n][0].toString();
-          }
-        }
-      }
-    }
-    */
+        let vEnd = matchResult[0].match('[0-9]+$')
+        vEnd = parseInt(vEnd[0].replace(':', ''), 10);
 
-    /*
-    // Initialize vars and offsets
-    let select_start = 0;
-    let select_end = 0;
-    let url = '';
-    let offset_reference = 0;
-    
-    // Parse and process
-    for (let n=0; n < bibleref_split.length; n++) {
-
-      // Declare variable(s)
-      let chapters = [], verseStart, verseEnd;
-
-      if (Array.isArray(bibleref_split[n])) {
-        for (let m=0; m < bibleref_split[n].length; m++) {
-
-          // Get chapter(s)
-          if (single_chapters.includes(bookNum)) {
-            chapters[0] = 1;
-            chapters[1] = 1;
-          } else {
-            chapters = bibleref_split[n][0].match(/[0-9]+:/g);
-            if (chapters.length == 1) {
-              chapters[0] = chapters[0].replace(':', '');
-              chapters[1] = chapters[0];
-            } else {
-              chapters[0] = chapters[0].replace(':', '');
-              chapters[1] = chapters[1].replace(':', '');
-            }
-          }
-
-          // Get verse(s)
-          if (bibleref_split[n][m].includes(':')) {
-            verseStart = bibleref_split[n][m].match(/:[0-9]+/).toString().replace(':', '');
-            verseEnd = bibleref_split[n][m].match(/[0-9]+\s*$/).toString().replace(':', '');
-          } else {
-            verseStart = bibleref_split[n][m].match(/\s[0-9]+/).toString();
-            verseEnd = bibleref_split[n][m].match(/[0-9]+\s*$/).toString();
-          }
-
-          // Get url link
-          url = get_url(bible_version, bookNum, chapters[0], chapters[1], verseStart, verseEnd);
-
-          // Get url text ranges
-          let url_text_len = bibleref_split[n][m].trim().length;
-          select_start = searchResultStart + offset_reference;
-          select_end = select_start + url_text_len - 1;
-          
-          // Set links if there is no selection or if selection exists and it is within the selection
-          if ((!searchElementStart && !searchElementEnd) || (searchElementStart == -1 && searchElementEnd == -1) || (select_start >= searchElementStart && select_end <= searchElementEnd)) {
-            searchResultAstext.setLinkUrl(select_start, select_end, url);
-          }
-          
-          // Add to reference offset, plus two for comma/colon and space
-          offset_reference += url_text_len + 2;
-        }
-
-      } else {
-
-        // Get chapter(s)
-        if (single_chapters.includes(bookNum)) {
-          chapters[0] = 1;
-          chapters[1] = 1;
-        } else {
-          chapters = bibleref_split[n].match(/[0-9]+:/g);
-          if (chapters.length == 1) {
-            chapters[0] = chapters[0].replace(':', '');
-            chapters[1] = chapters[0];
-          } else {
-            chapters[0] = chapters[0].replace(':', '');
-            chapters[1] = chapters[1].replace(':', '');
-          }
-        }
-
-        // Get verse(s)
-        if (single_chapters.includes(bookNum)) {
-          verseStart = bibleref_split[n].match(/\s[0-9]+/).toString();
-          verseEnd = bibleref_split[n].match(/[0-9]+\s*$/).toString();
-        } else {
-          verseStart = bibleref_split[n].match(/:[0-9]+/).toString().replace(':', '');
-          verseEnd = bibleref_split[n].match(/[0-9]+\s*$/).toString().replace(':', '');
-        }
-
-        // Get url link
-        url = get_url(bible_version, bookNum, chapters[0], chapters[1], verseStart, verseEnd);
-
-        // Get url text ranges
-        let url_text_len = bibleref_split[n].trim().length;
-        select_start = searchResultStart + offset_reference;
-        select_end = select_start + url_text_len - 1;
-        
-        // Set links if there is no selection or if selection exists and it is within the selection
-        if ((!searchElementStart && !searchElementEnd) || (searchElementStart == -1 && searchElementEnd == -1) || (select_start >= searchElementStart && select_end <= searchElementEnd)) { 
-          searchResultAstext.setLinkUrl(select_start, select_end, url);
-        }
-
-        // Add to reference offset, plus two for comma/colon and space
-        offset_reference += url_text_len + 2
-
+        // If comma-separated and non-consecutive, discard matchResult
+        if ( vStart + 1 != vEnd ) matchResult = null;
       };
 
     };
-    */
+
+    let chapterStart, verseStart, verseEnd, chapterEnd, url;
+
+    chapterStart = matchResult[0].match('[0-9]+:');
+    
+    if ( chapterStart.length > 1 ) {
+      chapterEnd = chapterStart[1].match('[0-9]+:');
+      chapterEnd = chapterEnd[0].replace(':', '');
+    };
+
+    chapterStart = chapterStart[0].replace(':', '');
+
+    verseStart = matchResult[0].match(':[0-9]+');
+    verseEnd = matchResult[0].match('[0-9]+$');
+    
+    url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
+
+    searchResultAstext.setLinkUrl(searchResultStart, searchResultStart + matchResult[0].length - 1, url);
+
+
+
+
+
     // Find the next match
     searchResult = searchElement.findText(searchRegex, searchResult);
     
-  };
+  }; // END: Cycle through each Bible reference found
 
-}; // END: function bibleParse(bibleData, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd)
+}; // END: function bibleParse(bibleData, bookNum, bookName, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd)
 
 
 function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd) {
@@ -366,3 +273,9 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
   return url;
 
 }; // END: function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd)
+
+
+function testFunctions() {
+  main();
+  // Logger.log(getUrl(null, "default", 1, 1, 1, 3));
+};
