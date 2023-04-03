@@ -24,16 +24,16 @@
       "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=<<>>",
       "padStart": {
         "bibleNum": {
-          "targetLength": ,
-          "padString": ""
+          "targetLength": 0,
+          "padString": "0"
         },
         "chapter": {
-          "targetLength": ,
-          "padString": ""
+          "targetLength": 3,
+          "padString": "0"
         },
         "verse": {
-          "targetLength": ,
-          "padString": ""
+          "targetLength": 3,
+          "padString": "0"
         },
       }
     },
