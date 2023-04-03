@@ -18,13 +18,13 @@
       }
     }
   },
-  "linkFormats": {
+  "bibleVersions": {
     "default": "en_jw_nwtsty_wol",
     "en_jw_nwt": {
       "displayName": "New World Translation",
-      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=<<>>",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
       "padStart": {
-        "bibleNum": {
+        "bookNum": {
           "targetLength": 0,
           "padString": "0"
         },
