@@ -361,7 +361,7 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
     .replace(/<<bookNameFull>>/g, bookNameFull);
 
   // Remove range if single verse scripture only
-  if ( chapterStart === chapterEnd && verseStart === verseEnd ) url = url.replace(/-[0-9]+/, '');
+  if ( chapterStart === chapterEnd && verseStart === verseEnd ) url = url.replace(/-[0-9]+$|-[0-9]+:[0-9]+:[0-9]+$/, '');
 
   return url;
 
