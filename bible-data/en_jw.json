@@ -19,6 +19,7 @@
     }
   },
   "linkFormats": {
+    "default": "en_jw_nwtsty_wol",
     "en_jw_nwt": {
       "displayName": "New World Translation",
       "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=<<>>",
