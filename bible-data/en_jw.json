@@ -18,6 +18,56 @@
       }
     }
   },
+  "linkFormats": {
+    "en_jw_nwt": {
+      "displayName": "New World Translation",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=<<>>",
+      "padStart": {
+        "bibleNum": {
+          "targetLength": ,
+          "padString": ""
+        },
+        "chapter": {
+          "targetLength": ,
+          "padString": ""
+        },
+        "verse": {
+          "targetLength": ,
+          "padString": ""
+        },
+      }
+    },
+    "en_jw_nwt_wol": {
+    },
+    "en_jw_nwtsty": {
+    },
+    "en_jw_nwtsty_wol": {
+    },
+    "en_jw_nwtrbi8": {
+    },
+    "en_jw_nwtrbi8_wol": {
+    },
+    "en_jw_kjv": {
+    },
+    "en_jw_kjv_wol": {
+    },
+    "en_jw_by": {
+    },
+    "en_jw_by_wol": {
+    },
+    "en_jw_asv": {
+    },
+    "en_jw_asv_wol": {
+    },
+    "en_jw_ebr": {
+    },
+    "en_jw_ebr_wol": {
+    },
+    "en_jw_int": {
+    },
+    "en_jw_int_wol": {
+    }
+  },
   "bookNames": {
     "1": [  "Ge",  "Gen.",  "Genesis" ],
     "2": [  "Ex",  "Ex.",  "Exodus" ],
