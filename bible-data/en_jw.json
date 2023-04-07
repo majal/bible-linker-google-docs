@@ -2,10 +2,6 @@
   "locale": "en",
   "bookCount": 66,
   "bookSingleChapters": [31, 57, 63, 64, 65],
-  "searchRegex": {
-    "multiChapters": "[0-9]+:[0-9 ,;:-]+[0-9]",
-    "singleChapters": "[0-9 ,-]+[0-9]"
-  },
   "strings": {
     "menu": {
       "title": "Bible Linker v2 (dev)"
@@ -85,6 +81,12 @@
     "64": [  "3Jo",  "3 John",  "3 John" ],
     "65": [  "Jude",  "Jude",  "Jude" ],
     "66": [  "Re",  "Rev.",  "Revelation" ]
+  },
+  "regEx": {
+    "searchRegex": {
+      "multiChapters": "[0-9]+:[0-9 ,;:-]+[0-9]",
+      "singleChapters": "[0-9 ,-]+[0-9]"
+    }
   },
   "bibleVersions": {
     "default": "en_jw_nwtsty_wol",
