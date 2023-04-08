@@ -9,9 +9,13 @@
  *
  *********************************************************************************** */
 
-const BIBLE_DATA_DEFAULT='https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json';
+const BIBLE_DATA_URL_DEFAULT='https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json';
 
-function bibleLinker(bibleDataSelection, bibleVersion) {
+////////////////////
+// Core functions //
+////////////////////
+
+function bibleLinker(bibleDataUrl, bibleVersion) {
 
   // Initialize Google Document
   var doc = DocumentApp.getActiveDocument();
@@ -22,18 +26,19 @@ function bibleLinker(bibleDataSelection, bibleVersion) {
   // Note if document has active selection
   var docSelection = doc.getSelection();
 
-  // Initialize user preferences on Bible data source to use
-  const userProperties = PropertiesService.getUserProperties();
-
-  // Fetch Bible data, then save data source to user preferences
-  if ( ! bibleDataSelection ) {
-    var bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_DEFAULT));
-    userProperties.setProperty('bibleData', BIBLE_DATA_DEFAULT);
-  } else {
-    var bibleData = JSON.parse(UrlFetchApp.fetch(bibleDataSelection));
-    userProperties.setProperty('bibleData', bibleDataSelection);
-  };
+  // Set bibleDataUrl to default if none is provided, then fetch it
+  if ( ! bibleDataUrl ) bibleDataUrl = BIBLE_DATA_URL_DEFAULT;
+  var bibleData = JSON.parse(UrlFetchApp.fetch(bibleDataUrl));
   
+  // Set bibleVersion to default if not found in Bible data
+  let bibleVersions = Object.keys(bibleData.bibleVersions);
+  if ( ! bibleVersions.includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
+
+  // Save last used values to user preferences
+  const userProperties = PropertiesService.getUserProperties();  
+  userProperties.setProperty('bibleDataUrl', bibleDataUrl);
+  userProperties.setProperty('bibleVersion', bibleVersion);
+
   // Get single-chapter Bible books
   var bookSingleChapters = bibleData.bookSingleChapters;
 
@@ -43,7 +48,6 @@ function bibleLinker(bibleDataSelection, bibleVersion) {
 
   // Get whitespace RegEx, set to default if null
   var ws = bibleData.regEx.whitespace;
-  if ( !ws ) ws = '[\u0020\u00a0]';
 
   // Get error messages
   var errorMsgParserTitle = bibleData.strings.errorMessages.parserError.title;
@@ -103,9 +107,9 @@ function bibleLinker(bibleDataSelection, bibleVersion) {
             // If whole line is selected start and end will be -1
             // https://developers.google.com/apps-script/reference/document/range-element#getendoffsetinclusive
             if (searchElementStart == -1 && searchElementEnd == -1) {
-              bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex);
+              bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex);
             } else {
-              bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd);
+              bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd);
             };
             
           } catch {
@@ -127,7 +131,7 @@ function bibleLinker(bibleDataSelection, bibleVersion) {
         // Send found matches to parser
         try {
           
-          bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex);
+          bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex);
         
         } catch {
 
@@ -143,13 +147,13 @@ function bibleLinker(bibleDataSelection, bibleVersion) {
 
   }; // END: Get book numbers, process each
 
-}; // END: function main(bibleDataSelection)
+}; // END: function bibleLinker(bibleDataUrl, bibleVersion)
 
 
-function bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd) {
+function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd) {
 
-  // Pull default Bible data if nothing was provided
-  if ( ! bibleData ) bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_DEFAULT));
+  // Get whitespace RegEx, set to default if null
+  var ws = bibleData.regEx.whitespace;
 
   // Variable(s) and constant(s)
   var bookSingleChapters = bibleData.bookSingleChapters;
@@ -233,7 +237,9 @@ function bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, se
         if ( referenceSplits[i][j].includes(':') ) {
           verseStart = parseInt(referenceSplits[i][j].match(/:\d+/g)[0].replace(':', ''), 10);
         } else {
-          verseStart = parseInt(referenceSplits[i][j].match(/^\s\d+/g)[0].replace('^\s', ''), 10);
+          let re1 = new RegExp('^' + ws + '\\d+', 'g');
+          let re2 = new RegExp('^' + ws, 'g');
+          verseStart = parseInt(referenceSplits[i][j].match(re1)[0].replace(re2, ''), 10);
         };
 
         verseEnd = parseInt(referenceSplits[i][j].match(/\d+[,;]*$/g)[0].replace(/[,;]$/g, ''), 10);
@@ -248,8 +254,18 @@ function bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, se
         // This is where the actual linking occurs //
         /////////////////////////////////////////////
 
-        let url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
-        searchResultAstext.setLinkUrl(linkableStart, linkableEnd, url);
+        // Only set links if:
+        // (1) there is no selection (null)
+        // (2) or full line is selected
+        // (2) or searchResult is within selection range // +1 is a quirk of .getEndOffsetInclusive()
+        if ((!searchElementStart || !searchElementEnd)
+        || (searchElementStart == -1 && searchElementEnd == -1)
+        || (searchResultStart >= searchElementStart && searchResultStart + referenceSplits[i][j].length <= searchElementEnd + 1)) {
+
+          let url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
+          searchResultAstext.setLinkUrl(linkableStart, linkableEnd, url);
+        
+        };
 
         // Set referenceStart for the next iteration
         referenceStart = referenceEnd;
@@ -263,17 +279,10 @@ function bibleParse(bibleData, bibleVersion, bookNum, bookName, searchResult, se
     
   }; // END: Cycle through each Bible reference found
 
-}; // END: function bibleParse(bibleData, bookNum, bookName, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd)
+}; // END: function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd)
 
 
 function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd) {
-
-  // Pull default Bible data if nothing was provided
-  if ( ! bibleData ) bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_DEFAULT));
-
-  // Set bibleVersion to default if not found in Bible data
-  let bibleVersions = Object.keys(bibleData.bibleVersions);
-  if ( ! bibleVersions.includes(bibleVersion) || bibleVersion == "default"  ) bibleVersion = bibleData.bibleVersions.default;
 
   // Get bookNames from bookNum
   var bookNameAbbr1 = bibleData.bookNames[bookNum][0];
