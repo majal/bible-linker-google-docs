@@ -4,7 +4,9 @@
   "bookSingleChapters": [31, 57, 63, 64, 65],
   "strings": {
     "menu": {
-      "title": "Bible Linker v2 (dev)"
+      "title": "Bible Linker v2 (dev)",
+      "doLink": "🔗  Link verses using",
+      "chooseBibleVersion": "📖  Choose Bible version"
     },
     "errorMessages": {
       "parserError": {
