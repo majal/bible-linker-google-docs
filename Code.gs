@@ -9,13 +9,135 @@
  *
  *********************************************************************************** */
 
-const BIBLE_DATA_URL_DEFAULT='https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json';
+loadGlobals();
+
+function loadGlobals() {
+
+  var BIBLE_DATA_SOURCES = {
+    "default": "en_jw_maj",
+    "en_jw_maj": {
+      "displayName": "English (JW.org)",
+      "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json"
+    }
+  };
+
+  // Get user's last used bibleVersions
+  const userProperties = PropertiesService.getUserProperties();
+  var bibleDataUrl = userProperties.getProperty('bibleDataUrl');
+  var bibleVersions = userProperties.getProperty('bibleVersions');
+
+  // If bibleVersions is not a proper JSON, set to null
+  try {
+    bibleVersions = JSON.parse(bibleVersions);
+  } catch {
+    bibleVersions = null;
+  };
+
+  // If there is no bibleDataUrl, set to default
+  if ( ! bibleDataUrl ) {
+    bibleDataUrl = BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].url;
+  };
+
+  // If there is no last used bibleVersions ... 
+  if ( ! bibleVersions ) {
+
+    // Pull bibleVersions from default data source
+    let bibleData = JSON.parse(UrlFetchApp.fetch(bibleDataUrl));
+    
+    // Load bibleVersions into array, except "default"
+    bibleVersions = [];
+    for ( let bibleVersion of Object.keys(bibleData.bibleVersions) ) {
+      if ( bibleVersion == "default" ) continue;
+      bibleVersions.splice(bibleVersions.length, 0, bibleVersion);
+    };
+
+  };
+
+  // Generate function names for the dynamic menu
+  for ( let i = 0; i < bibleVersions.length; i++ ) {
+    let dynamicMenuBibleVersion = 'dynamicFunctionCall_' + bibleVersions[i];
+    this[dynamicMenuBibleVersion] = function() { bibleLinker(bibleDataUrl, bibleVersions[i]); };
+  };
+
+}; // END: loadGlobals()
+
+
+//////////////////
+// Dynamic menu //
+//////////////////
+
+function createMenu() {
+
+  // Get user's last used bibleVersion and bibleDataUrl
+  const userProperties = PropertiesService.getUserProperties();
+  var bibleVersion = userProperties.getProperty('bibleVersion');
+  var bibleDataUrl = userProperties.getProperty('bibleDataUrl');
+
+  // If there is no bibleDataUrl, set to default
+  if ( ! bibleDataUrl ) {
+    bibleDataUrl = BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].url;
+  };
+
+  // Fetch bibleData
+  var bibleData = JSON.parse(UrlFetchApp.fetch(bibleDataUrl));
+
+  // Set bibleVersions to default if not found in Bible data
+  let bibleVersions = Object.keys(bibleData.bibleVersions);
+  if ( ! bibleVersions.includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
+
+  // Set lastest used Bible version to the menu
+  let displayName = bibleData.bibleVersions[bibleVersion].displayName;
+
+  // Set main menu item
+  var ui = DocumentApp.getUi();
+  var menu = ui.createMenu(bibleData.strings.menu.title)
+    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, "dynamicFunctionCall_" + bibleVersion );
+
+  // Set BIBLE_VERSIONS submenu
+  var menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
+
+  // Load dynamic values to BIBLE_VERSIONS submenu
+  for (let bibleVersionDynamic of bibleVersions) {
+    if ( bibleVersionDynamic == 'default' ) continue;
+    
+    let bibleVersionDisplayName = bibleData.bibleVersions[bibleVersionDynamic].displayName;
+    dynamicMenuBibleVersions = 'dynamicFunctionCall_' + bibleVersionDynamic;
+
+    let pointer = ( bibleVersion == bibleVersionDynamic ) ? '▸\u00a0\u00a0' : '\u00a0\u00a0\u00a0\u00a0';
+    menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
+    
+  };
+
+  // Create menu 
+  menu
+    .addSubMenu(menuChooseBibleVersion)
+    .addSeparator()
+    .addItem('📝  Study tools', 'bibleLinker')
+    .addToUi();
+
+};
 
 ////////////////////
 // Core functions //
 ////////////////////
 
 function bibleLinker(bibleDataUrl, bibleVersion) {
+
+  // Fetch bibleData
+  var bibleData = JSON.parse(UrlFetchApp.fetch(bibleDataUrl));
+
+  // Load bibleVersions into array, except "default"
+  var bibleVersions = [];
+  for ( let bibleVersion of Object.keys(bibleData.bibleVersions) ) {
+    if ( bibleVersion == "default" ) continue;
+    bibleVersions.splice(bibleVersions.length, 0, bibleVersion);
+  };
+
+  // Save last used values to user preferences
+  const userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty('bibleDataUrl', bibleDataUrl);
+  userProperties.setProperty('bibleVersion', bibleVersion);
+  userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
 
   // Initialize Google Document
   var doc = DocumentApp.getActiveDocument();
@@ -25,20 +147,7 @@ function bibleLinker(bibleDataUrl, bibleVersion) {
 
   // Note if document has active selection
   var docSelection = doc.getSelection();
-
-  // Set bibleDataUrl to default if none is provided, then fetch it
-  if ( ! bibleDataUrl ) bibleDataUrl = BIBLE_DATA_URL_DEFAULT;
-  var bibleData = JSON.parse(UrlFetchApp.fetch(bibleDataUrl));
   
-  // Set bibleVersion to default if not found in Bible data
-  let bibleVersions = Object.keys(bibleData.bibleVersions);
-  if ( ! bibleVersions.includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
-
-  // Save last used values to user preferences
-  const userProperties = PropertiesService.getUserProperties();  
-  userProperties.setProperty('bibleDataUrl', bibleDataUrl);
-  userProperties.setProperty('bibleVersion', bibleVersion);
-
   // Get single-chapter Bible books
   var bookSingleChapters = bibleData.bookSingleChapters;
 
@@ -146,6 +255,9 @@ function bibleLinker(bibleDataUrl, bibleVersion) {
     }; // END: Get book names, process each
 
   }; // END: Get book numbers, process each
+
+  // Receate menu
+  createMenu();
 
 }; // END: function bibleLinker(bibleDataUrl, bibleVersion)
 
@@ -341,3 +453,16 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
   return url;
 
 }; // END: function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd)
+
+
+//////////////////////
+// Helper functions //
+//////////////////////
+
+function onInstall(e) {
+  onOpen(e);
+};
+
+function onOpen(e) {
+  createMenu();
+};
