@@ -5,8 +5,8 @@
   "strings": {
     "menu": {
       "title": "Bible Linker v2 (dev)",
-      "doLink": "🔗  Link verses using",
-      "chooseBibleVersion": "📖  Choose Bible version"
+      "doLink": "🔗\u00a0\u00a0Link verses using",
+      "chooseBibleVersion": "📖\u00a0\u00a0Choose Bible version"
     },
     "errorMessages": {
       "parserError": {
@@ -379,7 +379,7 @@
   },
   "html": {
     "studyTools": {
-      "displayName": "📝  Study tools",
+      "displayName": "📝\u00a0\u00a0Study tools",
       "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.html"
     }
   },
