@@ -6,7 +6,8 @@
     "menu": {
       "title": "Bible Linker v2 (dev)",
       "doLink": "🔗\u00a0\u00a0Link verses using",
-      "chooseBibleVersion": "📖\u00a0\u00a0Choose Bible version"
+      "chooseBibleVersion": "📖\u00a0\u00a0Choose Bible version",
+      "chooseDataSource": "🌐\u00a0\u00a0Choose language (data source)"
     },
     "errorMessages": {
       "parserError": {
