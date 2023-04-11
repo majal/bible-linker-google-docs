@@ -57,9 +57,9 @@ function dynamicMenuGenerate() {
     
     // Load bibleVersions into array, except 'default'
     bibleVersions = [];
-    for ( let bibleVersionKey of Object.keys(bibleData.bibleVersions) ) {
-      if ( bibleVersionKey == 'default' ) continue;
-      bibleVersions.splice(bibleVersions.length, 0, bibleVersionKeyKey);
+    for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+      if ( bvk == 'default' ) continue;
+      bibleVersions.splice(bibleVersions.length, 0, bvk);
     };
 
   };
@@ -71,10 +71,10 @@ function dynamicMenuGenerate() {
   };
 
   // Generate bibleDataSource function names for the dynamic menu
-  for ( let bibleDataSourceKey of Object.keys(BIBLE_DATA_SOURCES) ) {
-    if ( bibleDataSourceKey == 'default' ) continue;
-    var dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceKey;
-    this[dynamicMenuBibleDataSource] = function() { chooseDataSource(bibleDataSourceKey); };
+  for ( let dsk of Object.keys(BIBLE_DATA_SOURCES) ) {
+    if ( dsk == 'default' ) continue;
+    var dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + dsk;
+    this[dynamicMenuBibleDataSource] = function() { chooseDataSource(dsk); };
   };
 
 }; // END: dynamicMenuGenerate()
@@ -177,9 +177,9 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
   // Load bibleVersions into array, except 'default'
   var bibleVersions = [];
-  for ( let bibleVersionKey of Object.keys(bibleData.bibleVersions) ) {
-    if ( bibleVersionKey == 'default' ) continue;
-    bibleVersions.splice(bibleVersions.length, 0, bibleVersionKey);
+  for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+    if ( bvk == 'default' ) continue;
+    bibleVersions.splice(bibleVersions.length, 0, bvk);
   };
 
   // Save last used values to user preferences
