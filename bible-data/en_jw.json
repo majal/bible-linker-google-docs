@@ -377,6 +377,12 @@
       }
     }
   },
+  "html": {
+    "studyTools": {
+      "displayName": "📝  Study tools",
+      "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.html"
+    }
+  },
   "regEx": {
     "search": {
       "multiChapters": "[0-9]+:[0-9 \u00a0,;:-]*[0-9]",
