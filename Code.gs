@@ -56,10 +56,17 @@ function dynamicMenuGenerate() {
 
   };
 
-  // Generate function names for the dynamic menu
+  // Generate bibleVersion function names for the dynamic menu
   for ( let i = 0; i < bibleVersions.length; i++ ) {
-    var dynamicMenuBibleVersion = 'dynamicFunctionCall_' + bibleDataSource + bibleVersions[i];
+    var dynamicMenuBibleVersion = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersions[i];
     this[dynamicMenuBibleVersion] = function() { bibleLinker(bibleDataSource, bibleVersions[i]); };
+  };
+
+  // Generate bibleDataSource function names for the dynamic menu
+  for ( let bibleDataSourceKey of Object.keys(BIBLE_DATA_SOURCES) ) {
+    if ( bibleDataSourceKey == 'default' ) continue;
+    var dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceKey;
+    this[dynamicMenuBibleDataSource] = function() { chooseDataSource(bibleDataSourceKey); };
   };
 
 }; // END: dynamicMenuGenerate()
@@ -69,8 +76,8 @@ function createMenu() {
 
   // Get user's last used bibleDataSource and bibleVersion
   const userProperties = PropertiesService.getUserProperties();
-  var bibleDataSource = userProperties.getProperty('bibleDataSource');
-  var bibleVersion = userProperties.getProperty('bibleVersion');
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+  let bibleVersion = userProperties.getProperty('bibleVersion');
 
   // Fetch bibleData from external source
   let bibleData = pullDataSource(bibleDataSource);
@@ -85,28 +92,47 @@ function createMenu() {
   // Set main menu item
   var ui = DocumentApp.getUi();
   var menu = ui.createMenu(bibleData.strings.menu.title)
-    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_' + bibleDataSource + bibleVersion );
+    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersion )
+    .addSeparator();
 
-  // Set BIBLE_VERSIONS submenu
+  // Set bibleVersions submenu
   var menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
 
-  // Load dynamic values to BIBLE_VERSIONS submenu
+  // Load dynamic values to bibleVersions submenu
   for (let bibleVersionDynamic of bibleVersions) {
+
     if ( bibleVersionDynamic == 'default' ) continue;
     
     let bibleVersionDisplayName = bibleData.bibleVersions[bibleVersionDynamic].displayName;
-    dynamicMenuBibleVersions = 'dynamicFunctionCall_' + bibleDataSource + bibleVersionDynamic;
+    dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
 
     let pointer = ( bibleVersion == bibleVersionDynamic ) ? '▸\u00a0\u00a0' : '\u00a0\u00a0\u00a0\u00a0';
     menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
     
   };
 
+  var menuChooseBibleDataSource = ui.createMenu(bibleData.strings.menu.chooseDataSource);
+
+  // Load dynamic values to bibleDataSources submenu
+  for ( let bibleDataSourceDynamic of Object.keys(BIBLE_DATA_SOURCES) ) {
+
+    if ( bibleDataSourceDynamic == 'default' ) continue;
+    
+    let bibleDataSourceDisplayName = BIBLE_DATA_SOURCES[bibleDataSourceDynamic].displayName;
+    dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
+
+    let pointer = ( bibleDataSource == bibleDataSourceDynamic ) ? '▸\u00a0\u00a0' : '\u00a0\u00a0\u00a0\u00a0';
+    menuChooseBibleDataSource.addItem(pointer + bibleDataSourceDisplayName, dynamicMenuBibleDataSource);
+    
+  };
+
+  // Get studyToolsDisplayName
   let studyToolsDisplayName = bibleData.html.studyTools.displayName;
 
   // Create menu 
   menu
     .addSubMenu(menuChooseBibleVersion)
+    .addSubMenu(menuChooseBibleDataSource)
     .addSeparator()
     .addItem(studyToolsDisplayName, 'studyTools')
     .addToUi();
@@ -453,25 +479,8 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
 
 
 //////////////////////////
-// Additional functions //
+// Other functions //
 //////////////////////////
-
-function studyTools() {
-
-  // Get user's last used bibleDataSource
-  const userProperties = PropertiesService.getUserProperties();
-  var bibleDataSource = userProperties.getProperty('bibleDataSource');
-
-  // Fetch bibleData from external source
-  let bibleData = pullDataSource(bibleDataSource);
-
-  var html_content = UrlFetchApp.fetch(bibleData.html.studyTools.url);
-
-  var htmlOutput = HtmlService.createHtmlOutput(html_content);
-  DocumentApp.getUi().showModalDialog(htmlOutput, bibleData.html.studyTools.windowLabel);
-
-};
-
 
 function pullDataSource(bibleDataSource) {
 
@@ -488,7 +497,45 @@ function pullDataSource(bibleDataSource) {
 
   return bibleData;
 
-}; // END: pullDataSource(bibleDataSource)
+};
+
+
+function chooseDataSource(bibleDataSource) {
+  
+  // Set bibleDataSource to user preferences
+  const userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty('bibleDataSource', bibleDataSource);
+
+  // Recreate menu
+  createMenu();
+
+  // Inform user of change of data source
+  var ui = DocumentApp.getUi();
+  ui.alert("New language or data source",
+    "Language or data source was updated to: " + BIBLE_DATA_SOURCES[bibleDataSource].displayName,
+    ui.ButtonSet.OK);
+
+};
+
+
+function studyTools() {
+
+  // Get user's last used bibleDataSource
+  const userProperties = PropertiesService.getUserProperties();
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+
+  // Fetch bibleData from external source
+  let bibleData = pullDataSource(bibleDataSource);
+
+  // Fetch studyTools HTML content
+  let htmlContent = UrlFetchApp.fetch(bibleData.html.studyTools.url);
+  let htmlOutput = HtmlService.createHtmlOutput(htmlContent);
+
+  // Show studyTools
+  DocumentApp.getUi().showModalDialog(htmlOutput, bibleData.html.studyTools.windowLabel);
+
+};
+
 
 //////////////////////
 // Helper functions //
@@ -501,4 +548,9 @@ function onInstall() {
 
 function onOpen() {
   createMenu();
+};
+
+
+function testFunctions() {
+  onOpen();
 };
