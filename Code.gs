@@ -44,14 +44,22 @@ function dynamicMenuGenerate() {
   // If there is no last used bibleVersions ... 
   if ( ! bibleVersions ) {
 
+    // If there is no bibleDataSource
+    // or bibleDataSource not included in current list (keys)
+    // then set to default value
+    if ( ! bibleDataSource
+    || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+      bibleDataSource = BIBLE_DATA_SOURCES.default;
+    };
+
     // Pull bibleVersions from default data source
-    let bibleData = pullDataSource(bibleDataSource);
+    let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
     
     // Load bibleVersions into array, except 'default'
     bibleVersions = [];
-    for ( let bibleVersion of Object.keys(bibleData.bibleVersions) ) {
-      if ( bibleVersion == 'default' ) continue;
-      bibleVersions.splice(bibleVersions.length, 0, bibleVersion);
+    for ( let bibleVersionKey of Object.keys(bibleData.bibleVersions) ) {
+      if ( bibleVersionKey == 'default' ) continue;
+      bibleVersions.splice(bibleVersions.length, 0, bibleVersionKeyKey);
     };
 
   };
@@ -79,12 +87,19 @@ function createMenu() {
   let bibleDataSource = userProperties.getProperty('bibleDataSource');
   let bibleVersion = userProperties.getProperty('bibleVersion');
 
-  // Fetch bibleData from external source
-  let bibleData = pullDataSource(bibleDataSource);
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
 
-  // Set bibleVersions to default if not found in Bible data
-  let bibleVersions = Object.keys(bibleData.bibleVersions);
-  if ( ! bibleVersions.includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
+  // Fetch bibleData from external source
+  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+
+  // Set bibleVersion to default if not found in Bible data
+  if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
 
   // Set lastest used Bible version to the menu
   let displayName = bibleData.bibleVersions[bibleVersion].displayName;
@@ -99,7 +114,7 @@ function createMenu() {
   var menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
 
   // Load dynamic values to bibleVersions submenu
-  for (let bibleVersionDynamic of bibleVersions) {
+  for ( let bibleVersionDynamic of Object.keys(bibleData.bibleVersions) ) {
 
     if ( bibleVersionDynamic == 'default' ) continue;
     
@@ -146,14 +161,25 @@ function createMenu() {
 
 function bibleLinker(bibleDataSource, bibleVersion) {
 
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
   // Fetch bibleData from external source
-  let bibleData = pullDataSource(bibleDataSource);
+  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+
+  // Set bibleVersion to default if not found in Bible data
+  if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
 
   // Load bibleVersions into array, except 'default'
   var bibleVersions = [];
-  for ( let bibleVersion of Object.keys(bibleData.bibleVersions) ) {
-    if ( bibleVersion == 'default' ) continue;
-    bibleVersions.splice(bibleVersions.length, 0, bibleVersion);
+  for ( let bibleVersionKey of Object.keys(bibleData.bibleVersions) ) {
+    if ( bibleVersionKey == 'default' ) continue;
+    bibleVersions.splice(bibleVersions.length, 0, bibleVersionKey);
   };
 
   // Save last used values to user preferences
@@ -191,13 +217,15 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
   // Expand bookNames with spaces to RegEx whitespaces
   for (bookName of Object.values(bibleData.bookNames)) {
-    for ( let i=0; i < bookName.length; i++ ) {
+    let bookNameLengthInit = bookName.length;
+    for ( let i=0; i < bookNameLengthInit; i++ ) {
       if ( bookName[i].includes(' ') ) {
         let nbspName = bookName[i].replace(/ /g, ws);
-        bookName.splice(i, 0, nbspName);
-        i++;      
+        // Replace only if next name is different than previous name
+        if ( nbspName != bookName[bookName.length-1] ) bookName.splice(bookName.length, 0, nbspName);
       };
     };
+    Logger.log(bookName);
   };  
 
   // Get book numbers, process each
@@ -422,7 +450,7 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
   // Get bookNames from bookNum
   var bookNameAbbr1 = bibleData.bookNames[bookNum][0];
   var bookNameAbbr2 = bibleData.bookNames[bookNum][1];
-  var bookNameFull  = bibleData.bookNames[bookNum][bibleData.bookNames[bookNum].length - 1];
+  var bookNameFull  = bibleData.bookNames[bookNum][2];
 
   // Convert any integers to string
   bookNum = bookNum.toString();
@@ -482,24 +510,6 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
 // Other functions //
 //////////////////////////
 
-function pullDataSource(bibleDataSource) {
-
-  // If there is no bibleDataSource
-  // or bibleDataSource not included in current list (keys)
-  // then set to default value
-  if ( ! bibleDataSource
-  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
-    bibleDataSource = BIBLE_DATA_SOURCES.default;
-  };
-
-  // Fetch bibleData from external source
-  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
-
-  return bibleData;
-
-};
-
-
 function chooseDataSource(bibleDataSource) {
   
   // Set bibleDataSource to user preferences
@@ -548,9 +558,4 @@ function onInstall() {
 
 function onOpen() {
   createMenu();
-};
-
-
-function testFunctions() {
-  onOpen();
 };
