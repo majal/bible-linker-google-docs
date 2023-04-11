@@ -225,7 +225,6 @@ function bibleLinker(bibleDataSource, bibleVersion) {
         if ( nbspName != bookName[bookName.length-1] ) bookName.splice(bookName.length, 0, nbspName);
       };
     };
-    Logger.log(bookName);
   };  
 
   // Get book numbers, process each
@@ -534,9 +533,17 @@ function studyTools() {
   const userProperties = PropertiesService.getUserProperties();
   let bibleDataSource = userProperties.getProperty('bibleDataSource');
 
-  // Fetch bibleData from external source
-  let bibleData = pullDataSource(bibleDataSource);
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
 
+  // Fetch bibleData from external source
+  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+  
   // Fetch studyTools HTML content
   let htmlContent = UrlFetchApp.fetch(bibleData.html.studyTools.url);
   let htmlOutput = HtmlService.createHtmlOutput(htmlContent);
