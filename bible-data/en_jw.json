@@ -12,8 +12,8 @@
     "errorMessages": {
       "parserError": {
         "title": "Oops!",
-        "messageBefore": "There was an error processing this verse:\n\n",
-        "messageAfter": "\n\nIs there a typo? (Tip: It’s usually the spaces.)"
+        "messageBefore": "We had a snag here:\n\n",
+        "messageAfter": "\n\nIs there a typo?\n\nTo improve this add-on, you can report errors here:\nhttps://github.com/majal/bible-linker-google-docs/issues"
       }
     }
   },
