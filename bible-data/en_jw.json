@@ -2,7 +2,7 @@
   "info": {
     "id": "en_jw",
     "displayName": "English (JW.org)",
-    "urls": [
+    "url": [
       "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
       "https://pastebin.com/raw/0W8738GK"
     ]
