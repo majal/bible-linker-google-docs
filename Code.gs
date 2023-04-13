@@ -34,7 +34,8 @@ function dynamicMenuGenerate() {
   let bibleDataSource = userProperties.getProperty('bibleDataSource');
   let bibleVersions = userProperties.getProperty('bibleVersions');
 
-  // If bibleVersions is not a proper JSON, set to null as possible error remediation
+  // Error remediation
+  // If bibleVersions is not a proper JSON, set to null
   try {
     bibleVersions = JSON.parse(bibleVersions);
   } catch {
@@ -101,8 +102,10 @@ function createMenu() {
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
 
-  // Set lastest used Bible version to the menu
+  // Get needed strings
   let displayName = bibleData.bibleVersions[bibleVersion].displayName;
+  let selectorSelected   = bibleData.strings.menu.selector.selected;
+  let selectorUnselected = bibleData.strings.menu.selector.unselected;
 
   // Set main menu item
   var ui = DocumentApp.getUi();
@@ -121,7 +124,7 @@ function createMenu() {
     let bibleVersionDisplayName = bibleData.bibleVersions[bibleVersionDynamic].displayName;
     dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
 
-    let pointer = ( bibleVersion == bibleVersionDynamic ) ? '▸\u00a0\u00a0' : '\u00a0\u00a0\u00a0\u00a0';
+    let pointer = ( bibleVersion == bibleVersionDynamic ) ? selectorSelected : selectorUnselected;
     menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
     
   };
@@ -136,7 +139,7 @@ function createMenu() {
     let bibleDataSourceDisplayName = BIBLE_DATA_SOURCES[bibleDataSourceDynamic].displayName;
     dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
 
-    let pointer = ( bibleDataSource == bibleDataSourceDynamic ) ? '▸\u00a0\u00a0' : '\u00a0\u00a0\u00a0\u00a0';
+    let pointer = ( bibleDataSource == bibleDataSourceDynamic ) ? selectorSelected : selectorUnselected;
     menuChooseBibleDataSource.addItem(pointer + bibleDataSourceDisplayName, dynamicMenuBibleDataSource);
     
   };
@@ -275,7 +278,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
             // Show text where search error occurred
             searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
-            // ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
+            ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
           };
 
@@ -296,7 +299,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
           // Show text where search error occurred
           searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
-          // ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
+          ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
         };
 
@@ -511,6 +514,21 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
 
 function chooseDataSource(bibleDataSource) {
   
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
+  // Fetch bibleData from external source
+  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+
+  let updateTitle         = bibleData.strings.bibleDataSource.update.title;
+  let updateMessageBefore = bibleData.strings.bibleDataSource.update.messageBefore;
+  let updateMessageAfter  = bibleData.strings.bibleDataSource.update.messageAfter;
+
   // Set bibleDataSource to user preferences
   const userProperties = PropertiesService.getUserProperties();
   userProperties.setProperty('bibleDataSource', bibleDataSource);
@@ -520,9 +538,7 @@ function chooseDataSource(bibleDataSource) {
 
   // Inform user of change of data source
   var ui = DocumentApp.getUi();
-  ui.alert("New language or data source",
-    "Language or data source was updated to: " + BIBLE_DATA_SOURCES[bibleDataSource].displayName,
-    ui.ButtonSet.OK);
+  ui.alert(updateTitle, updateMessageBefore + BIBLE_DATA_SOURCES[bibleDataSource].displayName + updateMessageAfter, ui.ButtonSet.OK);
 
 };
 
