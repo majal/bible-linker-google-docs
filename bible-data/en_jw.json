@@ -17,6 +17,13 @@
       }
     }
   },
+  "html": {
+    "studyTools": {
+      "displayName": "📝\u00a0\u00a0Study tools",
+      "windowLabel": "Bible study tools",
+      "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.html"
+    }
+  },
   "bookNames": {
     "1": [  "Ge",  "Gen.",  "Genesis" ],
     "2": [  "Ex",  "Ex.",  "Exodus" ],
@@ -376,13 +383,6 @@
           "padString": "0"
         }
       }
-    }
-  },
-  "html": {
-    "studyTools": {
-      "displayName": "📝\u00a0\u00a0Study tools",
-      "windowLabel": "Bible study tools",
-      "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.html"
     }
   },
   "regEx": {
