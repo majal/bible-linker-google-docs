@@ -16,7 +16,7 @@
     "bibleDataSource": {
       "update": {
         "title": "New language or data source",
-        "messageBefore": "",
+        "messageBefore": "▸\u00a0\u00a0",
         "messageAfter": ""
       }
     },
