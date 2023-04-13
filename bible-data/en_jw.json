@@ -13,6 +13,13 @@
         "unselected": "\u00a0\u00a0\u00a0\u00a0"
       }
     },
+    "bibleDataSource": {
+      "update": {
+        "title": "New language or data source",
+        "messageBefore": "",
+        "messageAfter": ""
+      }
+    },
     "errorMessages": {
       "parserError": {
         "title": "Oops!",
