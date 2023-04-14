@@ -1,0 +1,436 @@
+{
+  "info": {
+    "id": "en_jw",
+    "displayName": "English (JW.org)",
+    "url": [
+      "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
+      "https://pastebin.com/raw/0W8738GK"
+    ],
+    "strings": {
+      "errors": {
+        "nullBibleData": "No Bible data available",
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+        }
+      }
+    }
+  },
+  "locale": "en",
+  "bookCount": 66,
+  "bookSingleChapters": [31, 57, 63, 64, 65],
+  "strings": {
+    "menu": {
+      "title": "Bible Linker v2 (dev)",
+      "doLink": "🔗\u00a0\u00a0Link verses using",
+      "chooseBibleVersion": "📖\u00a0\u00a0Choose Bible version",
+      "chooseDataSource": "🌐\u00a0\u00a0Choose language (data source)",
+      "selector": {
+        "selected": "▸\u00a0\u00a0",
+        "unselected": "\u00a0\u00a0\u00a0\u00a0"
+      },
+      "customDataSource": "Set custom data source ..."
+    },
+    "bibleDataSource": {
+      "update": {
+        "title": "New language or data source",
+        "messageBefore": "▸\u00a0\u00a0",
+        "messageAfter": ""
+      }
+    },
+    "customDataSource": {
+      "input": {
+        "title": "Custom data source",
+        "messageBefore": "Sample JSON data:\n\n",
+        "messageAfter": "Input URL to valid JSON Bible data:\n\n"
+      },
+      "error": {
+        "title": "Invalid data source or URL",
+        "message": "The input JSON is invalid or this URL points to an invalid JSON:\n\n"
+      }
+    },
+    "errorMessages": {
+      "parserError": {
+        "title": "Oops!",
+        "messageBefore": "We had a snag here:\n\n",
+        "messageAfter": "\n\nIs there a typo?\n\nTo improve this add-on, you can report errors here:\nhttps://github.com/majal/bible-linker-google-docs/issues"
+      }
+    }
+  },
+  "html": {
+    "studyTools": {
+      "displayName": "📝\u00a0\u00a0Study tools",
+      "windowLabel": "Bible study tools",
+      "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.html"
+    }
+  },
+  "bookNames": {
+    "1": [  "Ge",  "Gen.",  "Genesis" ],
+    "2": [  "Ex",  "Ex.",  "Exodus" ],
+    "3": [  "Le",  "Lev.",  "Leviticus" ],
+    "4": [  "Nu",  "Num.",  "Numbers" ],
+    "5": [  "De",  "Deut.",  "Deuteronomy" ],
+    "6": [  "Jos",  "Josh.",  "Joshua" ],
+    "7": [  "Jg",  "Judg.",  "Judges" ],
+    "8": [  "Ru",  "Ruth",  "Ruth" ],
+    "9": [  "1Sa",  "1 Sam.",  "1 Samuel" ],
+    "10": [  "2Sa",  "2 Sam.",  "2 Samuel" ],
+    "11": [  "1Ki",  "1 Ki.",  "1 Kings" ],
+    "12": [  "2Ki",  "2 Ki.",  "2 Kings" ],
+    "13": [  "1Ch",  "1 Chron.",  "1 Chronicles" ],
+    "14": [  "2Ch",  "2 Chron.",  "2 Chronicles" ],
+    "15": [  "Ezr",  "Ezra",  "Ezra" ],
+    "16": [  "Ne",  "Neh.",  "Nehemiah" ],
+    "17": [  "Es",  "Esther",  "Esther" ],
+    "18": [  "Job",  "Job",  "Job" ],
+    "19": [  "Ps",  "Ps.", "Psalm",  "Psalms" ],
+    "20": [  "Pr",  "Prov.",  "Proverbs" ],
+    "21": [  "Ec",  "Eccl.",  "Ecclesiastes" ],
+    "22": [  "Ca",  "Song of Sol.",  "Song of Solomon" ],
+    "23": [  "Isa",  "Isa.",  "Isaiah" ],
+    "24": [  "Jer",  "Jer.",  "Jeremiah" ],
+    "25": [  "La",  "Lam.",  "Lamentations" ],
+    "26": [  "Eze",  "Ezek.",  "Ezekiel" ],
+    "27": [  "Da",  "Dan.",  "Daniel" ],
+    "28": [  "Ho",  "Hos.",  "Hosea" ],
+    "29": [  "Joe",  "Joel",  "Joel" ],
+    "30": [  "Am",  "Amos",  "Amos" ],
+    "31": [  "Ob",  "Obad.",  "Obadiah" ],
+    "32": [  "Jon",  "Jonah",  "Jonah" ],
+    "33": [  "Mic",  "Mic.",  "Micah" ],
+    "34": [  "Na",  "Nah.",  "Nahum" ],
+    "35": [  "Hab",  "Hab.",  "Habakkuk" ],
+    "36": [  "Zep",  "Zeph.",  "Zephaniah" ],
+    "37": [  "Hag",  "Hag.",  "Haggai" ],
+    "38": [  "Zec",  "Zech.",  "Zechariah" ],
+    "39": [  "Mal",  "Mal.",  "Malachi" ],
+    "40": [  "Mt",  "Matt.",  "Matthew" ],
+    "41": [  "Mr",  "Mark",  "Mark" ],
+    "42": [  "Lu",  "Luke",  "Luke" ],
+    "43": [  "Joh",  "John",  "John" ],
+    "44": [  "Ac",  "Acts",  "Acts" ],
+    "45": [  "Ro",  "Rom.",  "Romans" ],
+    "46": [  "1Co",  "1 Cor.",  "1 Corinthians" ],
+    "47": [  "2Co",  "2 Cor.",  "2 Corinthians" ],
+    "48": [  "Ga",  "Gal.",  "Galatians" ],
+    "49": [  "Eph",  "Eph.",  "Ephesians" ],
+    "50": [  "Php",  "Phil.",  "Philippians" ],
+    "51": [  "Col",  "Col.",  "Colossians" ],
+    "52": [  "1Th",  "1 Thess.",  "1 Thessalonians" ],
+    "53": [  "2Th",  "2 Thess.",  "2 Thessalonians" ],
+    "54": [  "1Ti",  "1 Tim.",  "1 Timothy" ],
+    "55": [  "2Ti",  "2 Tim.",  "2 Timothy" ],
+    "56": [  "Tit",  "Titus",  "Titus" ],
+    "57": [  "Phm",  "Philem.",  "Philemon" ],
+    "58": [  "Heb",  "Heb.",  "Hebrews" ],
+    "59": [  "Jas",  "Jas.",  "James" ],
+    "60": [  "1Pe",  "1 Pet.",  "1 Peter" ],
+    "61": [  "2Pe",  "2 Pet.",  "2 Peter" ],
+    "62": [  "1Jo",  "1 John",  "1 John" ],
+    "63": [  "2Jo",  "2 John",  "2 John" ],
+    "64": [  "3Jo",  "3 John",  "3 John" ],
+    "65": [  "Jude",  "Jude",  "Jude" ],
+    "66": [  "Re",  "Rev.",  "Revelation" ]
+  },
+  "bibleVersions": {
+    "default": "en_jw_nwtsty_wol",
+    "en_jw_nwt": {
+      "displayName": "New World Translation",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_nwt_wol": {
+      "displayName": "New World Translation (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/nwt/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_nwtsty": {
+      "displayName": "New World Translation (Study Edition)",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=nwtsty&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_nwtsty_wol": {
+      "displayName": "New World Translation (Study Edition) (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/nwtsty/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_nwtrbi8": {
+      "displayName": "New World Translation (Reference Edition, 1984)",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=Rbi8&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_nwtrbi8_wol": {
+      "displayName": "New World Translation (Reference Edition, 1984) (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/Rbi8/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_kjv": {
+      "displayName": "King James Version (1611)",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=bi10&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_kjv_wol": {
+      "displayName": "King James Version (1611) (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/bi10/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_by": {
+      "displayName": "The Bible in Living English (Byington)",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=by&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_by_wol": {
+      "displayName": "The Bible in Living English (Byington) (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/by/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_asv": {
+      "displayName": "American Standard Version",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=bi22&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_asv_wol": {
+      "displayName": "American Standard Version (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/bi22/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_ebr": {
+      "displayName": "Emphasized Bible (Rotherham)",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=rh&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_ebr_wol": {
+      "displayName": "Emphasized Bible (Rotherham) (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/rh/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_int": {
+      "displayName": "The Kingdom Interlinear Translation",
+      "urlFormat": "https://www.jw.org/finder?wtlocale=E&pub=int&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
+      "booksExclude": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39 ],
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 3,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 3,
+          "padString": "0"
+        }
+      }
+    },
+    "en_jw_int_wol": {
+      "displayName": "The Kingdom Interlinear Translation (WOL)",
+      "urlFormat": "https://wol.jw.org/en/wol/b/r1/lp-e/int/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "booksExclude": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39 ],
+      "padStart": {
+        "bookNum": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "chapter": {
+          "targetLength": 0,
+          "padString": "0"
+        },
+        "verse": {
+          "targetLength": 0,
+          "padString": "0"
+        }
+      }
+    }
+  },
+  "regEx": {
+    "search": {
+      "multiChapters": "[0-9]+:[0-9 \u00a0,;:-]*[0-9]",
+      "singleChapters": "[0-9 \u00a0,-]*[0-9]"
+    },
+    "whitespace": "[\u0020\u00a0]"
+  }
+}

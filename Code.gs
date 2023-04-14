@@ -2,620 +2,855 @@
  * 
  *  Bible linker for Google Docs
  * 
- *  A Google Documents Apps Script that searches for Bible verses and creates links to a selection of online Bible sources.
- * 
+ *  A Google Documents Apps Script that searches for Bible verses and creates links to
+ *  a selection of online Bible sources.
+ *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
+ *  v2.0.0-beta-1
+ * 
  *********************************************************************************** */
 
+////////////////////////////////////////////////////////////
+// Global variables and function, needed for dynamic menu //
+////////////////////////////////////////////////////////////
 
-function onInstall(e) {
-
-  onOpen(e);
-
-}
-
-
-function onOpen(e) {
-
-  // Get lastest used Bible version by user
-  if (e && e.authMode == ScriptApp.AuthMode.NONE) {
-    var last_used_bible_version = 'nwtsty_wol';
-  } else {
-    const userProperties = PropertiesService.getUserProperties();
-    var last_used_bible_version = userProperties.getProperty('last_used_bible_version');
-    if (last_used_bible_version == null) last_used_bible_version = 'nwtsty_wol';
+const BIBLE_DATA_SOURCES = {
+  "default": "en_jw",
+  "en_jw": {
+    "displayName": "English (JW.org)",
+    "url": [
+      "https://github.com/majal/bible-linker-google-docs/raw/main/bible-data/en_jw.json",
+      "https://pastebin.com/raw/0W8738GK"
+    ],
+    "strings": {
+      "errors": {
+        "nullBibleData": "No Bible data available",
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+        }
+      }
+    }
+  },
+  "custom": {
+    "displayName": "Custom data source",
+    "strings": {
+      "errors": {
+        "nullBibleData": "No custom data available",
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+        }
+      }
+    }
   }
+};
 
-  create_menu(last_used_bible_version);
+//////////////////
+// Dynamic menu //
+//////////////////
 
-}
+dynamicMenuGenerate();
+
+function dynamicMenuGenerate() {
+
+  // Get user's last used bibleVersions
+  const userProperties = PropertiesService.getUserProperties();
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+  let bibleVersions = userProperties.getProperty('bibleVersions');
+
+  // Error remediation
+  // If bibleVersions is not a proper JSON, set to null
+  try {
+    bibleVersions = JSON.parse(bibleVersions);
+  } catch {
+    bibleVersions = null;
+  };
+
+  // If there is no last used bibleVersions ... 
+  if ( ! bibleVersions ) {
+
+    // If there is no bibleDataSource
+    // or bibleDataSource not included in current list (keys)
+    // then set to default value
+    if ( ! bibleDataSource
+    || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+      bibleDataSource = BIBLE_DATA_SOURCES.default;
+    };
+
+    // Fetch bibleData from external source, throw error if bibleData is null
+    let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+    if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+    
+    // Load bibleVersions into array, except 'default'
+    bibleVersions = [];
+    for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+      if ( bvk == 'default' ) continue;
+      bibleVersions.splice(bibleVersions.length, 0, bvk);
+    };
+
+  };
+
+  // Generate bibleVersion function names for the dynamic menu
+  for ( let i = 0; i < bibleVersions.length; i++ ) {
+    var dynamicMenuBibleVersion = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersions[i];
+    this[dynamicMenuBibleVersion] = function() { bibleLinker(bibleDataSource, bibleVersions[i]); };
+  };
+
+  // Generate bibleDataSource function names for the dynamic menu
+  for ( let dsk of Object.keys(BIBLE_DATA_SOURCES) ) {
+    if ( dsk == 'default' ) continue;
+    var dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + dsk;
+    this[dynamicMenuBibleDataSource] = function() { chooseDataSource(dsk); };
+  };
+
+}; // END: dynamicMenuGenerate()
 
 
-function create_menu(last_used_bible_version) {
+function createMenu() {
 
-  // Pull supported Bible versions
-  const bible_versions = consts('bible_versions');
-  const bible_versions_keys = Object.keys(bible_versions);
+  // Get user's last used bibleDataSource and bibleVersion
+  const userProperties = PropertiesService.getUserProperties();
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+  let bibleVersion = userProperties.getProperty('bibleVersion');
 
-  // Set lastest used Bible version to the menu
-  let last_used_bible_label = bible_versions[last_used_bible_version];
-  let dynamic_name_bible_linker = 'bible_linker_' + last_used_bible_version;
-  let search_label = '🔗  Link verses using ' + last_used_bible_label;
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
 
-  // Set menu
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Set bibleVersion to default if not found in Bible data
+  if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
+
+  // Get needed strings
+  let displayName = bibleData.bibleVersions[bibleVersion].displayName;
+  let selectorSelected   = bibleData.strings.menu.selector.selected;
+  let selectorUnselected = bibleData.strings.menu.selector.unselected;
+
+  // Set main menu item
   var ui = DocumentApp.getUi();
-  var menu = ui.createMenu('Bible Linker')
-    .addItem(search_label, dynamic_name_bible_linker)
+  var menu = ui.createMenu(bibleData.strings.menu.title)
+    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersion )
+    .addSeparator();
 
-  // Set Bible version dynamic submenus
-  var submenu_bible_ver = ui.createMenu('📖  Choose Bible version');
-  for (let n=0; n < bible_versions_keys.length; n++) {
-    let key = bible_versions_keys[n];
-    let dynamic_name_bible_linker = 'bible_linker_' + key;
-    let last_used_pointer = (last_used_bible_version == key) ? '▸  ' : '    ';
-    submenu_bible_ver.addItem(last_used_pointer + bible_versions[key], dynamic_name_bible_linker);
-  }
+  // Set bibleVersions submenu
+  var menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
+
+  // Load dynamic values to bibleVersions submenu
+  for ( let bibleVersionDynamic of Object.keys(bibleData.bibleVersions) ) {
+
+    if ( bibleVersionDynamic == 'default' ) continue;
+    
+    let bibleVersionDisplayName = bibleData.bibleVersions[bibleVersionDynamic].displayName;
+    dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
+
+    let pointer = bibleVersion == bibleVersionDynamic ? selectorSelected : selectorUnselected;
+    menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
+    
+  };
+
+  // Set bibleDataSource submenu
+  var menuChooseBibleDataSource = ui.createMenu(bibleData.strings.menu.chooseDataSource);
+
+  // Load dynamic values to bibleDataSources submenu
+  for ( let bibleDataSourceDynamic of Object.keys(BIBLE_DATA_SOURCES) ) {
+
+    if ( bibleDataSourceDynamic == 'default' ) continue;
+    
+    let bibleDataSourceDisplayName = BIBLE_DATA_SOURCES[bibleDataSourceDynamic].displayName;
+    dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
+
+    let pointer = bibleDataSource == bibleDataSourceDynamic ? selectorSelected : selectorUnselected;
+    menuChooseBibleDataSource.addItem(pointer + bibleDataSourceDisplayName, dynamicMenuBibleDataSource);
+    
+  };
+
+  // Add custom entry at the end of submenu
+  menuChooseBibleDataSource
+    .addSeparator()
+    .addItem(bibleData.strings.menu.customDataSource, 'chooseDataSourceCustom');
+
+  // Get studyToolsDisplayName
+  let studyToolsDisplayName = bibleData.html.studyTools.displayName;
 
   // Create menu 
   menu
-    .addSubMenu(submenu_bible_ver)
+    .addSubMenu(menuChooseBibleVersion)
+    .addSubMenu(menuChooseBibleDataSource)
     .addSeparator()
-    .addItem('📝  Study tools', 'study_tools')
+    .addItem(studyToolsDisplayName, 'studyTools')
     .addToUi();
 
-}
+}; // END: function createMenu()
 
 
-// Dynamic menu hack
-const bible_versions = consts('bible_versions');
-const bible_versions_keys = Object.keys(bible_versions);
-for (let n=0; n < bible_versions_keys.length; n++) {
-  let key = bible_versions_keys[n];
-  let dynamic_name_bible_linker = 'bible_linker_' + key;
-  this[dynamic_name_bible_linker] = function() { bible_linker(key); };
-}
+////////////////////
+// Core functions //
+////////////////////
 
+function bibleLinker(bibleDataSource, bibleVersion) {
 
-function bible_linker(bible_version) {
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
 
-  // Initialize Google Docs
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Set bibleVersion to default if not found in Bible data
+  if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
+
+  // Load bibleVersions into array, except 'default'
+  var bibleVersions = [];
+  for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+    if ( bvk == 'default' ) continue;
+    bibleVersions.splice(bibleVersions.length, 0, bvk);
+  };
+
+  // Save last used values to user preferences
+  const userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty('bibleDataSource', bibleDataSource);
+  userProperties.setProperty('bibleVersion', bibleVersion);
+  userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
+
+  // Initialize Google Document
   var doc = DocumentApp.getActiveDocument();
 
-  // Set the latest used Bible version
-  if (bible_version == undefined || bible_version == null) bible_version = 'nwtsty_wol';
-  const userProperties = PropertiesService.getUserProperties();
-  userProperties.setProperty('last_used_bible_version', bible_version);
-  create_menu(bible_version);
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
 
-  // Get names of Bible books
-  var nwt_bookName = consts('nwt_bookName');
-  var nwt_bookAbbrev1 = consts('nwt_bookAbbrev1');
-  var nwt_bookAbbrev2 = consts('nwt_bookAbbrev2');
+  // Note if document has active selection
+  var docSelection = doc.getSelection();
+  
+  // Get single-chapter Bible books
+  var bookSingleChapters = bibleData.bookSingleChapters;
 
-  // Run parser for each Bible name
-  for (let n=0; n < nwt_bookAbbrev2.length; n++) {
-    bible_search(doc, bible_version, nwt_bookAbbrev2[n], n+1);
-  }
+  // Get search RegExes
+  var searchRegexMultiChapters = bibleData.regEx.search.multiChapters;
+  var searchRegexSingleChapters = bibleData.regEx.search.singleChapters;
 
-  for (let n=0; n < nwt_bookAbbrev1.length; n++) {
-    bible_search(doc, bible_version, nwt_bookAbbrev1[n], n+1);
-  }
+  // Get whitespace RegEx, set to default if null
+  var ws = bibleData.regEx.whitespace;
 
-  for (let n=0; n < nwt_bookName.length; n++) {
-    if (Array.isArray(nwt_bookName[n])) {
-      for (let m=0; m < nwt_bookName[n].length; m++) {
-        bible_search(doc, bible_version, nwt_bookName[n][m], n+1);
-      }
-    } else {
-      bible_search(doc, bible_version, nwt_bookName[n], n+1);
-    }
-  }
+  // Get error messages
+  var errorMsgParserTitle = bibleData.strings.errorMessages.parserError.title;
+  var errorMsgParserBefore = bibleData.strings.errorMessages.parserError.messageBefore;
+  var errorMsgParserAfter = bibleData.strings.errorMessages.parserError.messageAfter;
 
-}
+  //Initialize variables to use in loops
+  var bookNum, bookName, searchRegex;
 
+  // Expand bookNames with spaces to RegEx whitespaces
+  for (bookName of Object.values(bibleData.bookNames)) {
+    let bookNameLengthInit = bookName.length;
+    for ( let i=0; i < bookNameLengthInit; i++ ) {
+      if ( bookName[i].includes(' ') ) {
+        let nbspName = bookName[i].replace(/ /g, ws);
+        // Replace only if next name is different than previous name
+        if ( nbspName != bookName[bookName.length-1] ) bookName.splice(bookName.length, 0, nbspName);
+      };
+    };
+  };  
 
-function bible_search(doc, bible_version, bible_name, bible_num) {
+  // Get book numbers, process each
+  for (bookNum of Object.keys(bibleData.bookNames)) {
 
-  // Set variables and constants
-  var single_chapters = consts('single_chapter_bible_nums');
-  var search_field, search_result;
-  var selection = doc.getSelection();
-
-  var err_msg_title = 'Oops!';
-  var err_msg1 = 'There was an error processing this verse:\n\n';
-  var err_msg2 = "\n\nIs there a typo? (Tip: It's usually the spaces.)";
-
-  // Search for Bible references
-  if (single_chapters.includes(bible_num)) {
-    var search_string = '(?i)' + bible_name + ' [0-9 ,-]+';
-  } else {
-    var search_string = '(?i)' + bible_name + ' [0-9]+:[0-9 ,;:-]+';
-  }
-
-  // Check if selection is present and only process that
-  if (selection) {
-    var range_elements = selection.getRangeElements();
-
-    // Search within each selection element and pass results to parser 
-    for (let n=0; n < range_elements.length; n++) {
-      search_field = range_elements[n].getElement();
-      search_result = search_field.findText(search_string);
-
-      // Note if selection is only a part of the element (single line)
-      search_field_start = range_elements[n].getStartOffset();
-      search_field_end = range_elements[n].getEndOffsetInclusive();
+    // Get book names, process each
+    for (bookName of Object.values(bibleData.bookNames[bookNum])) {
       
-      // Because the parser can hit unexpected errors with typos ;-)
-      try {
+      // Modify RegEx format if it is a single-chapter book
+      if ( bookSingleChapters.includes(bookNum) ) {
+        searchRegex = bookName + ws + searchRegexSingleChapters;
+      } else {
+        searchRegex = bookName + ws + searchRegexMultiChapters;
+      };
+      
+      ///////////////////////////////////////////////////////////////////////////
+      // For each bookName, each selection or whole document, perform a search //
+      ///////////////////////////////////////////////////////////////////////////
 
-        // If whole line is selected start and end will be -1
-        if (search_field_start == -1 && search_field_end == -1) {
-          bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
-        } else {
-          bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string, search_field_start, search_field_end);
-        }
+      // Initialize variables
+      var searchElement, searchResult, searchResultTextSlice;
+
+      // Search only selected text if present
+      if (docSelection) {
+        var rangeElements = docSelection.getRangeElements();
+
+        // Search within each selection element and pass results to parser 
+        for (let n=0; n < rangeElements.length; n++) {
+          searchElement = rangeElements[n].getElement();
+          searchResult = searchElement.findText(searchRegex);
+
+          // Note if selection is only a part of the element (single line)
+          let searchElementStart = rangeElements[n].getStartOffset();
+          let searchElementEnd = rangeElements[n].getEndOffsetInclusive();
+          
+          // Send found matches to parser
+          try {
+
+            // If whole line is selected start and end will be -1
+            // https://developers.google.com/apps-script/reference/document/range-element#getendoffsetinclusive
+            if (searchElementStart == -1 && searchElementEnd == -1) {
+              bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex);
+            } else {
+              bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd);
+            };
+            
+          } catch {
+
+            // Show text where search error occurred
+            searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
+            ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
+
+          };
+
+        };
+
+      // Perform search on whole document
+      } else {
+
+        searchElement = doc.getBody();
+        searchResult = searchElement.findText(searchRegex);
         
-      } catch {
+        // Send found matches to parser
+        try {
+          
+          bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex);
+        
+        } catch {
 
-        // Show text where error occurred
-        var ui = DocumentApp.getUi();
-        let search_result_text_slice = search_result.getElement().asText().getText().slice(search_result.getStartOffset(), search_result.getEndOffsetInclusive() + 1);
-        ui.alert(err_msg_title, err_msg1 + search_result_text_slice + err_msg2, ui.ButtonSet.OK);
-      }
+          // Show text where search error occurred
+          searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
+          ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
-    }
+        };
 
-  } else {
+      }; // END: For each bookName, each selection or whole document, perform a search
 
-    // Perform search on whole document
-    search_field = doc.getBody();
-    search_result = search_field.findText(search_string);
+    }; // END: Get book names, process each
 
-    // Pass results to parser, and because the parser can hit unexpected errors with typos ;-)
-    try {
-      bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string);
-    } catch {
+  }; // END: Get book numbers, process each
 
-      // Show text where error occurred
-      var ui = DocumentApp.getUi();
-      let search_result_text_slice = search_result.getElement().asText().getText().slice(search_result.getStartOffset(), search_result.getEndOffsetInclusive() + 1);
-      ui.alert(err_msg_title, err_msg1 + search_result_text_slice + err_msg2, ui.ButtonSet.OK);
-    }
+  // Receate menu
+  createMenu();
 
-  } 
-
-}
+}; // END: function bibleLinker(bibleDataSource, bibleVersion)
 
 
-function bible_parse(bible_version, bible_name, bible_num, search_result, search_field, search_string, search_field_start, search_field_end) {
+function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd) {
+
+  // Get whitespace RegEx, set to default if null
+  var ws = bibleData.regEx.whitespace;
 
   // Variable(s) and constant(s)
-  var single_chapters = consts('single_chapter_bible_nums');
+  var bookSingleChapters = bibleData.bookSingleChapters;
 
   // Cycle through each Bible reference found
-  while (search_result != null) {
+  while (searchResult != null) {
+    
+    // Get reference start and end offsets
+    let searchResultStart = searchResult.getStartOffset();
+    let searchResultEnd = searchResult.getEndOffsetInclusive();
+    
+    // Isolate reference text
+    let searchResultAstext = searchResult.getElement().asText();
+    let searchResultText = searchResultAstext.getText();
+    let searchResultTextSlice = searchResultText.slice(searchResultStart, searchResultEnd + 1);
+    
+    //////////////////////////////////////////////////////////////////
+    // Split Bible references into linkable parts: referenceSplits, //
+    // saved as arrays within an array for individual processing    //
+    //////////////////////////////////////////////////////////////////
 
-    // Set reference start and end
-    var search_result_start = search_result.getStartOffset();
-    var search_result_end = search_result.getEndOffsetInclusive();
+    // Split to arrays for every semicolon then save to splitsSemicolon
+    let splitsSemicolon = searchResultTextSlice.split(';');
+    // Add back the removed semicolon(s), all array values except the last one
+    for ( let i=0; i < splitsSemicolon.length-1; i++ ) {
+      splitsSemicolon[i] += ';';
+    };
 
-    // Isolate reference only
-    var search_result_astext = search_result.getElement().asText();
-    var search_result_text = search_result_astext.getText();
-    var search_result_text_slice = search_result_text.slice(search_result_start, search_result_end + 1);
+    let referenceSplits = [];
+    // For every splitsSemicolon generated ...
+    for ( let i=0; i < splitsSemicolon.length; i++ ) {
+      // Split to arrays within array for every comma, then save to referenceSplits
+      referenceSplits.push(splitsSemicolon[i].split(','));
+      // If comma split(s) occured ...
+      if ( referenceSplits[i].length > 1 ) {
 
-    // Split at semicolon (;)
-    var bibleref_split = search_result_text_slice.split(';');
-  
-    // Retain verses only, remove if it does not contain colon (:), exception on single chapter books
-    for (let n=0; n < bibleref_split.length; n++) {
-      if (!single_chapters.includes(bible_num) && !bibleref_split[n].includes(':')) {
-        bibleref_split.splice(n, 1);
-        n--;
-      }
-    }
-
-    // Split by comma (,)
-    for (let n=0; n < bibleref_split.length; n++) {
-      if (bibleref_split[n].includes(',')) {
-        bibleref_split[n] = bibleref_split[n].split(',');
-
-        // Rejoin if verses are consecutive
-        if (Array.isArray(bibleref_split[n])) {
-          for (let m=1; m < bibleref_split[n].length; m++) {
-            if (parseInt(bibleref_split[n][m-1].match(/[0-9]+$/), 10) + 1 == parseInt(bibleref_split[n][m], 10)) {
-              bibleref_split[n][m-1] += ',' + bibleref_split[n][m];
-              bibleref_split[n].splice(m, 1);
-              m--;
-            }
-          }
-
-          // Convert array to string if consecutive verses
-          if (bibleref_split[n].length == 1) {
-            bibleref_split[n] = bibleref_split[n][0].toString();
-          }
-        }
-      }
-    }
-
-    // Initialize vars and offsets
-    let select_start = 0;
-    let select_end = 0;
-    let url = '';
-    let offset_reference = 0;
-
-    // Parse and process
-    for (let n=0; n < bibleref_split.length; n++) {
-
-      // Declare variable(s)
-      let chapters = [], verse_start, verse_end;
-
-      if (Array.isArray(bibleref_split[n])) {
-        for (let m=0; m < bibleref_split[n].length; m++) {
-
-          // Get chapter(s)
-          if (single_chapters.includes(bible_num)) {
-            chapters[0] = 1;
-            chapters[1] = 1;
-          } else {
-            chapters = bibleref_split[n][0].match(/[0-9]+:/g);
-            if (chapters.length == 1) {
-              chapters[0] = chapters[0].replace(':', '');
-              chapters[1] = chapters[0];
-            } else {
-              chapters[0] = chapters[0].replace(':', '');
-              chapters[1] = chapters[1].replace(':', '');
-            }
-          }
-
-          // Get verse(s)
-          if (bibleref_split[n][m].includes(':')) {
-            verse_start = bibleref_split[n][m].match(/:[0-9]+/).toString().replace(':', '');
-            verse_end = bibleref_split[n][m].match(/[0-9]+\s*$/).toString().replace(':', '');
-          } else {
-            verse_start = bibleref_split[n][m].match(/\s[0-9]+/).toString();
-            verse_end = bibleref_split[n][m].match(/[0-9]+\s*$/).toString();
-          }
-
-          // Get url link
-          url = get_url(bible_version, bible_num, chapters[0], chapters[1], verse_start, verse_end);
-
-          // Get url text ranges
-          let url_text_len = bibleref_split[n][m].trim().length;
-          select_start = search_result_start + offset_reference;
-          select_end = select_start + url_text_len - 1;
+        // Run for all split array values except the last one
+        for ( let j=0; j < referenceSplits[i].length-1; j++ ) {
           
-          // Set links if there is no selection or if selection exists and it is within the selection
-          if ((!search_field_start && !search_field_end) || (search_field_start == -1 && search_field_end == -1) || (select_start >= search_field_start && select_end <= search_field_end)) {
-            search_result_astext.setLinkUrl(select_start, select_end, url);
-          }
-          
-          // Add to reference offset, plus two for comma/colon and space
-          offset_reference += url_text_len + 2;
-        }
+          // If verses separated by commas are consecutive, join together as one reference
+          let verseNow = parseInt(referenceSplits[i][j].match(/\d+$/g)[0], 10);
+          let verseNext = parseInt(referenceSplits[i][j+1].match(/\d+;*$/g)[0].replace(';', ''), 10);
+          if ( verseNow + 1 == verseNext ) {
+            referenceSplits[i][j] += ',' + referenceSplits[i][j+1];
+            referenceSplits[i].splice(j+1, 1);
+          };
 
+          // Add back the removed comma(s) if next array exist, except the last array value
+          // Conditional IF added due to the splice above, moving the last array backward
+          if (referenceSplits[i][j+1]) referenceSplits[i][j] += ',';
+
+        };
+
+      };
+
+    };
+
+    /////////////////////////////////////////////////////////////////////
+    // Generate variables for the linker:                              //
+    // chapterStart, verseStart, verseEnd, chapterEnd, referenceStart, //
+    // and referenceEnd for every referenceSplit to pass on to linker  //
+    /////////////////////////////////////////////////////////////////////
+
+    let referenceStart = searchResultStart, referenceEnd;
+    let chapterStart, verseStart, verseEnd, chapterEnd;
+
+    // Get chapters in each referenceSplits
+    for ( let i=0; i < referenceSplits.length; i++ ) {
+      
+      let chapters = referenceSplits[i][0].match(/\d+:/g);
+      if ( chapters.length == 1 ) {
+        chapterStart = chapterEnd = parseInt(chapters[0].replace(':', ''), 10);
       } else {
+        chapterStart = parseInt(chapters[0].replace(':', ''), 10);
+        chapterEnd = parseInt(chapters[1].replace(':', ''), 10);
+      };
 
-        // Get chapter(s)
-        if (single_chapters.includes(bible_num)) {
-          chapters[0] = 1;
-          chapters[1] = 1;
+      // Get verses in each referenceSplits
+      for ( let j=0; j < referenceSplits[i].length; j++ ) {
+
+        if ( referenceSplits[i][j].includes(':') ) {
+          verseStart = parseInt(referenceSplits[i][j].match(/:\d+/g)[0].replace(':', ''), 10);
         } else {
-          chapters = bibleref_split[n].match(/[0-9]+:/g);
-          if (chapters.length == 1) {
-            chapters[0] = chapters[0].replace(':', '');
-            chapters[1] = chapters[0];
-          } else {
-            chapters[0] = chapters[0].replace(':', '');
-            chapters[1] = chapters[1].replace(':', '');
-          }
-        }
+          let re1 = new RegExp('^' + ws + '\\d+', 'g');
+          let re2 = new RegExp('^' + ws, 'g');
+          verseStart = parseInt(referenceSplits[i][j].match(re1)[0].replace(re2, ''), 10);
+        };
 
-        // Get verse(s)
-        if (single_chapters.includes(bible_num)) {
-          verse_start = bibleref_split[n].match(/\s[0-9]+/).toString();
-          verse_end = bibleref_split[n].match(/[0-9]+\s*$/).toString();
-        } else {
-          verse_start = bibleref_split[n].match(/:[0-9]+/).toString().replace(':', '');
-          verse_end = bibleref_split[n].match(/[0-9]+\s*$/).toString().replace(':', '');
-        }
+        verseEnd = parseInt(referenceSplits[i][j].match(/\d+[,;]*$/g)[0].replace(/[,;]$/g, ''), 10);
 
-        // Get url link
-        url = get_url(bible_version, bible_num, chapters[0], chapters[1], verse_start, verse_end);
-
-        // Get url text ranges
-        let url_text_len = bibleref_split[n].trim().length;
-        select_start = search_result_start + offset_reference;
-        select_end = select_start + url_text_len - 1;
+        // Determine referenceEnd, and linkable start and end
+        referenceEnd = referenceStart + referenceSplits[i][j].length;
+        let linkableStart = referenceStart + referenceSplits[i][j].search(/\d/);
+        if ( i == 0 && j == 0 ) linkableStart = referenceStart;
+        let linkableEnd = referenceStart + referenceSplits[i][j].search(/\d\D*$/);
         
-        // Set links if there is no selection or if selection exists and it is within the selection
-        if ((!search_field_start && !search_field_end) || (search_field_start == -1 && search_field_end == -1) || (select_start >= search_field_start && select_end <= search_field_end)) { 
-          search_result_astext.setLinkUrl(select_start, select_end, url);
-        }
+        /////////////////////////////////////////////
+        // This is where the actual linking occurs //
+        /////////////////////////////////////////////
 
-        // Add to reference offset, plus two for comma/colon and space
-        offset_reference += url_text_len + 2
-      }
-    }
+        // Only set links if:
+        // (1) there is no selection (null)
+        // (2) or full line is selected
+        // (2) or searchResult is within selection range // +1 is a quirk of .getEndOffsetInclusive()
+        if ((!searchElementStart || !searchElementEnd)
+        || (searchElementStart == -1 && searchElementEnd == -1)
+        || (searchResultStart >= searchElementStart && searchResultStart + referenceSplits[i][j].length <= searchElementEnd + 1)) {
+
+          let url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
+          searchResultAstext.setLinkUrl(linkableStart, linkableEnd, url);
+        
+        };
+
+        // Set referenceStart for the next iteration
+        referenceStart = referenceEnd;
+
+      };
+
+    }; // END: Generate variables for the linker
 
     // Find the next match
-    search_result = search_field.findText(search_string, search_result);
-  }
+    searchResult = searchElement.findText(searchRegex, searchResult);
+    
+  }; // END: Cycle through each Bible reference found
 
-}
+}; // END: function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd)
 
 
-function get_url(bible_version, bible_name_num, chapter_start, chapter_end, verse_start, verse_end) {
+function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd) {
 
-  // Declare variables
-  var url_head, url_hash;
+  // Get bookNames from bookNum
+  var bookNameAbbr1 = bibleData.bookNames[bookNum][0];
+  var bookNameAbbr2 = bibleData.bookNames[bookNum][1];
+  var bookNameFull  = bibleData.bookNames[bookNum][2];
 
-  // Initialize integer values
-  chapter_start = parseInt(chapter_start, 10);
-  chapter_end = parseInt(chapter_end, 10);
-  verse_start = parseInt(verse_start, 10);
-  verse_end = parseInt(verse_end, 10);
+  // Convert any integers to string
+  bookNum = bookNum.toString();
+  chapterStart = chapterStart.toString();
+  verseStart = verseStart.toString();
+  if ( ! verseEnd ) verseEnd = verseStart;
+  if ( verseEnd !== verseStart ) verseEnd = verseEnd.toString();
+  if ( ! chapterEnd ) chapterEnd = chapterStart;
+  if ( chapterEnd !== chapterStart ) chapterEnd = chapterEnd.toString();
 
-  // Choices from Bible versions
-  // Make sure to add entries in function consts(bible_versions)
-  switch (bible_version) {
+  // Format book numbers, chapters, and verses
+  var targetLength, padString;
   
-    case 'nwt':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=nwt&bible=';
+  if ( bibleData.bibleVersions[bibleVersion].padStart.bookNum ) {
+    targetLength = bibleData.bibleVersions[bibleVersion].padStart.bookNum.targetLength;
+    padString = bibleData.bibleVersions[bibleVersion].padStart.bookNum.padString;
 
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
+    bookNum = bookNum.padStart(targetLength, padString);
+  };
+  
+  if ( bibleData.bibleVersions[bibleVersion].padStart.chapter ) {
+    targetLength = bibleData.bibleVersions[bibleVersion].padStart.chapter.targetLength;
+    padString = bibleData.bibleVersions[bibleVersion].padStart.chapter.padString;
 
-    case 'nwt_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/nwt/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
+    chapterStart = chapterStart.padStart(targetLength, padString);
+    chapterEnd = chapterEnd.padStart(targetLength, padString);
+  };
+  
+  if ( bibleData.bibleVersions[bibleVersion].padStart.verse ) {
+    targetLength = bibleData.bibleVersions[bibleVersion].padStart.verse.targetLength;
+    padString = bibleData.bibleVersions[bibleVersion].padStart.verse.padString;
 
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
+    verseStart = verseStart.padStart(targetLength, padString);
+    verseEnd = verseEnd.padStart(targetLength, padString);
+  };
 
-    case 'nwtsty':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=nwtsty&bible=';
+  let url = bibleData.bibleVersions[bibleVersion].urlFormat;
+  url = url
+    .replace(/<<bookNum>>/g, bookNum)
+    .replace(/<<chapterStart>>/g, chapterStart)
+    .replace(/<<verseStart>>/g, verseStart)
+    .replace(/<<verseEnd>>/g, verseEnd)
+    .replace(/<<chapterEnd>>/g, chapterEnd)
+    .replace(/<bookNameAbbr1>>/g, bookNameAbbr1)
+    .replace(/<<bookNameAbbr2>>/g, bookNameAbbr2)
+    .replace(/<<bookNameFull>>/g, bookNameFull);
 
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
+  // Remove range if single verse scripture only
+  if ( chapterStart === chapterEnd && verseStart === verseEnd ) url = url.replace(/-[0-9]+$|-[0-9]+:[0-9]+:[0-9]+$/, '');
 
-    case 'nwtsty_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/nwtsty/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
+  return url;
 
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
+}; // END: function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd)
+
+
+/////////////////////
+// Other functions //
+/////////////////////
+
+function getBibleData(bibleDataSourceUrl, bibleDataSource) {
+
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
+  // Get error messages
+  let title                 = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.title;
+  let messageBeforeSingular = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforeSingular;
+  let messageBeforePlural   = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforePlural;
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  // Define variables
+  let bibleData, bibleDataJSON;
+
+  // If data source contains multiple URLs, isArray
+  if ( Array.isArray(bibleDataSourceUrl) ) {
+
+    // For each URL in array, exit once a proper JSON is found
+    for ( let i = 0; i < bibleDataSourceUrl.length; i++ ) {
+
+      // Try to download JSON
+      try {
       
-    case 'nwtrbi8':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=Rbi8&bible=';
+        bibleData = UrlFetchApp.fetch(bibleDataSourceUrl[i]);
+      
+      // Continue with next URL in array if URL is invalid
+      } catch {
 
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
-
-    case 'nwtrbi8_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/Rbi8/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
-
-    case 'kjv_jw':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=bi10&bible=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
-
-    case 'kjw_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/bi10/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
-
-  case 'by_jw':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=by&bible=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
-
-    case 'by_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/by/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
-
-case 'asv_jw':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=bi22&bible=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
-
-    case 'asv_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/bi22/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
-
-    case 'ebr_jw':
-      url_head = 'https://www.jw.org/finder?wtlocale=E&pub=rh&bible=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0');
-      } else {
-        return url_head + bible_name_num + String(chapter_start).padStart(3, '0') + String(verse_start).padStart(3, '0') + '-' + bible_name_num + String(chapter_end).padStart(3, '0') + String(verse_end).padStart(3, '0');
-      }
-    break;
-
-    case 'ebr_wol':
-      url_head = 'https://wol.jw.org/en/wol/b/r1/lp-e/rh/';
-      url_hash1 = '#s=';
-      url_hash2 = '&study=discover&v=';
-
-      if (chapter_start == chapter_end && verse_start == verse_end) {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start;
-      } else {
-        return url_head + bible_name_num + '/' + chapter_start + url_hash1 + verse_start + url_hash2 + bible_name_num + ':' + chapter_start + ':' + verse_start + '-' + bible_name_num + ':' + chapter_end + ':' + verse_end;
-      }
-    break;
-
-    default:
-      undefined;
-  }
-
-}
-
-
-function consts(const_name) {
-  switch (const_name) {
-
-    case 'nwt_bookName':
-      return ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", ["Psalm", "Psalms"], "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"];
-      break;
-
-    case 'nwt_bookAbbrev1':
-      return ["Ge", "Ex", "Le", "Nu", "De", "Jos", "Jg", "Ru", "1Sa", "2Sa", "1Ki", "2Ki", "1Ch", "2Ch", "Ezr", "Ne", "Es", "Job", "Ps", "Pr", "Ec", "Ca", "Isa", "Jer", "La", "Eze", "Da", "Ho", "Joe", "Am", "Ob", "Jon", "Mic", "Na", "Hab", "Zep", "Hag", "Zec", "Mal", "Mt", "Mr", "Lu", "Joh", "Ac", "Ro", "1Co", "2Co", "Ga", "Eph", "Php", "Col", "1Th", "2Th", "1Ti", "2Ti", "Tit", "Phm", "Heb", "Jas", "1Pe", "2Pe", "1Jo", "2Jo", "3Jo", "Jude", "Re"];
-      break;
-
-    case 'nwt_bookAbbrev2':
-      return ["Gen.", "Ex.", "Lev.", "Num.", "Deut.", "Josh.", "Judg.", "Ruth", "1 Sam.", "2 Sam.", "1 Ki.", "2 Ki.", "1 Chron.", "2 Chron.", "Ezra", "Neh.", "Esther", "Job", "Ps.", "Prov.", "Eccl.", "Song of Sol.", "Isa.", "Jer.", "Lam.", "Ezek.", "Dan.", "Hos.", "Joel", "Amos", "Obad.", "Jonah", "Mic.", "Nah.", "Hab.", "Zeph.", "Hag.", "Zech.", "Mal.", "Matt.", "Mark", "Luke", "John", "Acts", "Rom.", "1 Cor.", "2 Cor.", "Gal.", "Eph.", "Phil.", "Col.", "1 Thess.", "2 Thess.", "1 Tim.", "2 Tim.", "Titus", "Philem.", "Heb.", "Jas.", "1 Pet.", "2 Pet.", "1 John", "2 John", "3 John", "Jude", "Rev."];
-      break;
-
-    case 'single_chapter_bible_nums':
-      return [31, 57, 63, 64, 65];
-      break;
-
-    // Make sure that entries below exist in function get_url > switch (bible_version)
-    case 'bible_versions':
-      return {
-        nwt: 'New World Translation (NWT)',
-        nwt_wol: 'New World Translation (NWT) (WOL)',
-        nwtsty: 'NWT Study Bible',
-        nwtsty_wol: 'NWT Study Bible (WOL)',
-        nwtrbi8: 'NWT Reference Bible',
-        nwtrbi8_wol: 'NWT Reference Bible (WOL)',
-        kjv_jw: 'King James Version of 1611',
-        kjw_wol: 'King James Version of 1611 (WOL)',
-        by_jw: 'The Bible in Living English',
-        by_wol: 'The Bible in Living English (WOL)',
-        asv_jw: 'American Standard Version',
-        asv_wol: 'American Standard Version (WOL)',
-        ebr_jw: 'Emphasized Bible',
-        ebr_wol: 'Emphasized Bible (WOL)'
+        continue;
+      
       };
-      break;
 
-    default:
-      undefined;
+      // If JSON exists and downloadable
+      if ( bibleData.getResponseCode() == 200 ) {
+
+        // Return and exit if valid JSON
+        try {
+
+          bibleDataJSON = JSON.parse(bibleData.getContentText());
+          return bibleDataJSON;
+
+        // Continue with next URL in array if JSON is invalid
+        } catch {
+
+          continue;
+        
+        };
+
+      };
+
+    };
+
+    // If no valid JSON is found among all the URLs
+    if ( ! bibleDataJSON ) {
+
+      // Send alert to UI and return null
+      ui.alert(title, messageBeforePlural + bibleDataSourceUrl.join('\n'), ui.ButtonSet.OK);
+      return null;
+
+    };
+
+  // If data source contain only a single URL string
+  } else {
+
+    // Try to download JSON
+    try {
+    
+      bibleData = UrlFetchApp.fetch(bibleDataSourceUrl);
+    
+    // If URL invalid, send alert to UI and return null
+    } catch {
+
+      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      return null;
+    
+    };
+    
+    // Return and exit if valid JSON
+    try {
+
+      bibleDataJSON = JSON.parse(bibleData.getContentText());
+      return bibleDataJSON;
+    
+    // If not a valid JSON, send alert to UI and return null
+    } catch {
+
+      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      return null;
+
+    };
+  
+  };
+
+}; // END: getBibleData(bibleDataSourceUrl, bibleDataSource)
+
+
+function getBibleDataCustom() {
+
+  const userProperties = PropertiesService.getUserProperties();
+  let customBibleData = userProperties.getProperty('customBibleData');
+
+  if ( typeof customBibleData === "object" ) {
+
+    try {
+
+      return getBibleData(JSON.parse(customBibleData).url, 'custom');
+    
+    } catch {
+    
+      return;
+    
+    };
+
+  } else {
+
+    return getBibleData(customBibleData, 'custom');
+
   }
 
-}
+};
 
 
-function study_tools() {
-  var html_content = `
-  <style>
-    html {font-family: "Open Sans", Arial, sans-serif;}
-
-    li {padding: 0 0 20px 0;}
-
-    .button {
-      background-color: #326B8C;
-      border: 2px solid #326B8C;
-      border-radius: 8px;
-      font-weight: bold;
-      color: #FFF;
-      text-align: center;
-      text-decoration: none;
-      font-size: 16px;
-      margin: 30px auto 10px auto;
-      padding: 12px 24px;
-      display:block;
-      transition-duration: 0.4s;
-      cursor: pointer;
-    }
-
-    .button:hover {
-      box-shadow: 0 6px 16px 0 rgba(0,0,0,0.24), 0 9px 50px 0 rgba(0,0,0,0.19);
-    }
-
-    .button:active {
-      box-shadow: 0 2px 50px 0 rgba(0,0,0,0.24), 0 5px 10px 0 rgba(0,0,0,0.19);
-      transform: translateY(4px);
-    }
-  </style>
+function chooseDataSource(bibleDataSource) {
   
-  <base target="_blank">
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
 
-  <p>Tools to help you get a deeper understanding of the Bible:</p>
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
-  <ul>
-    <li><strong><a href="https://wol.jw.org/">Watchtower Online Library</a> (WOL)</strong> - A research tool to find explanatory articles about Bible verses and topics.</li>
-    <li><strong><a href="https://www.jw.org/finder?docid=802013025">JW Library</a></strong> - Bible library in your pocket.</li>
-    <li><strong><a href="https://www.jw.org/finder?docid=1011539">Study tools</a></strong> on <a href="https://www.jw.org/">jw.org</a>.</li>
-  </ul>
+  let updateTitle         = bibleData.strings.bibleDataSource.update.title;
+  let updateMessageBefore = bibleData.strings.bibleDataSource.update.messageBefore;
+  let updateMessageAfter  = bibleData.strings.bibleDataSource.update.messageAfter;
 
-  <input class="button" type="button" value="Got it!" onClick="google.script.host.close()" />
-  `
+  // Set bibleDataSource to user preferences
+  const userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty('bibleDataSource', bibleDataSource);
 
-  var htmlOutput = HtmlService
-    .createHtmlOutput(html_content);
-  DocumentApp.getUi().showModalDialog(htmlOutput, 'Bible study tools');
+  // Recreate menu
+  createMenu();
 
-}
+  // Inform user of change of data source
+  var ui = DocumentApp.getUi();
+  ui.alert(updateTitle, updateMessageBefore + BIBLE_DATA_SOURCES[bibleDataSource].displayName + updateMessageAfter, ui.ButtonSet.OK);
+
+};
+
+
+function chooseDataSourceCustom() {
+
+  // Get user's last used bibleDataSource
+  const userProperties = PropertiesService.getUserProperties();
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Get strings
+  let inputTitle     = bibleData.strings.customDataSource.input.title;
+  let inputMsgBefore = bibleData.strings.customDataSource.input.messageBefore;
+  let inputMsgAfter  = bibleData.strings.customDataSource.input.messageAfter;
+  let errorTitle     = bibleData.strings.customDataSource.error.title;
+  let errorMessage   = bibleData.strings.customDataSource.error.message;
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  // Initialize variables
+  let customBibleDataJSON;
+
+  // Get custom JSON or URL
+  // let response = ui.prompt(inputTitle, inputMsgBefore + JSON.stringify(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default], null, '\u00a0\u00a0') + '\n\n' + inputMsgAfter, ui.ButtonSet.OK_CANCEL);
+  let response = ui.prompt(inputTitle, inputMsgAfter, ui.ButtonSet.OK_CANCEL);
+
+  // Exit if there is no input
+  if ( response.getResponseText().length == 0 ) return;
+
+  // If the user clicked the OK button
+  if ( response.getSelectedButton() == ui.Button.OK ) {
+
+    // Check if input is valid JSON
+    try {
+
+      customBibleDataJSON = JSON.parse(response.getResponseText());
+
+      // If JSON is valid ...
+      if ( customBibleDataJSON && typeof customBibleDataJSON === "object" ) {
+
+        // Upload to userProperties
+        try {
+
+          userProperties.setProperty('bibleDataSource', 'custom');
+          userProperties.setProperty('customBibleData', JSON.stringify(customBibleDataJSON));
+          createMenu();
+          return;
+        
+        // Catch if userProperties.setProperty() returns an error
+        } catch(e) {
+
+          // Notify about the error
+          ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON), ui.ButtonSet.OK);
+
+          // Restart function
+          chooseDataSourceCustom();
+          return;
+        
+        };
+
+      };
+
+    // If not valid JSON, try if it is a URL pointing to a valid JSON
+    } catch {
+
+      // If URL is invalid or did not return a valid JSON
+      if ( ! getBibleData(response.getResponseText(), bibleDataSource) ) {
+      
+        // Notify about the error
+        // ui.alert(errorTitle, errorMessage + response.getResponseText(), ui.ButtonSet.OK);
+
+        // Restart function
+        chooseDataSourceCustom();
+        return;
+      
+      };
+    
+      // If URL is valid, upload URL to userProperties
+      userProperties.setProperty('bibleDataSource', 'custom');
+      userProperties.setProperty('customBibleData', response.getResponseText());
+      createMenu();
+      return;
+
+    };
+
+  // If the user did not click the OK button, just exit
+  } else {
+    
+    return;
+
+  };
+
+}; // END: chooseDataSourceCustom()
+
+
+function studyTools() {
+
+  // Get user's last used bibleDataSource
+  const userProperties = PropertiesService.getUserProperties();
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+  
+  // Fetch studyTools HTML content
+  let htmlContent = UrlFetchApp.fetch(bibleData.html.studyTools.url);
+  let htmlOutput = HtmlService.createHtmlOutput(htmlContent);
+
+  // Show studyTools
+  DocumentApp.getUi().showModalDialog(htmlOutput, bibleData.html.studyTools.windowLabel);
+
+};
+
+
+//////////////////////
+// Helper functions //
+//////////////////////
+
+function onInstall() {
+  onOpen();
+};
+
+
+function onOpen() {
+  createMenu();
+};
