@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-alpha-1.0.0
+ *  v2.0.0-beta-1
  * 
  *********************************************************************************** */
 
@@ -20,7 +20,7 @@ const BIBLE_DATA_SOURCES = {
   "en_jw": {
     "displayName": "English (JW.org)",
     "url": [
-      "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
+      "https://github.com/majal/bible-linker-google-docs/raw/main/bible-data/en_jw.json",
       "https://pastebin.com/raw/0W8738GK"
     ],
     "strings": {
