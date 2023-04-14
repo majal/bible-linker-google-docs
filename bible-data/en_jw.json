@@ -33,7 +33,8 @@
       "selector": {
         "selected": "▸\u00a0\u00a0",
         "unselected": "\u00a0\u00a0\u00a0\u00a0"
-      }
+      },
+      "customDataSource": "Custom data source ..."
     },
     "bibleDataSource": {
       "update": {
@@ -42,8 +43,14 @@
         "messageAfter": ""
       },
       "customDataSource": {
-        "title": "Custom data source",
-        "message": "Input valid JSON data or URL to JSON file:\n"
+        "input": {
+          "title": "Custom data source",
+          "message": "Input valid JSON data or URL to JSON file:\n\n"
+        },
+        "error": {
+          "title": "Invalid data source or URL",
+          "message": "The input JSON is invalid or this URL points to an invalid JSON:\n\n"
+        }
       }
     },
     "errorMessages": {
