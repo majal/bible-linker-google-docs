@@ -5,7 +5,17 @@
     "url": [
       "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
       "https://pastebin.com/raw/0W8738GK"
-    ]
+    ],
+    "strings": {
+      "errors": {
+        "nullBibleData": "No Bible data available",
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+        }
+      }
+    }
   },
   "locale": "en",
   "bookCount": 66,
