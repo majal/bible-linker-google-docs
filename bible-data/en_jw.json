@@ -41,9 +41,9 @@
         "messageBefore": "▸\u00a0\u00a0",
         "messageAfter": ""
       },
-      "custom": {
+      "customDataSource": {
         "title": "Custom data source",
-        "message": "JSON data source URL:"
+        "message": "Input valid JSON data or URL to JSON file:\n"
       }
     },
     "errorMessages": {
