@@ -41,16 +41,16 @@
         "title": "New language or data source",
         "messageBefore": "▸\u00a0\u00a0",
         "messageAfter": ""
+      }
+    },
+    "customDataSource": {
+      "input": {
+        "title": "Custom data source",
+        "message": "Input valid JSON data or URL to JSON file:\n\n"
       },
-      "customDataSource": {
-        "input": {
-          "title": "Custom data source",
-          "message": "Input valid JSON data or URL to JSON file:\n\n"
-        },
-        "error": {
-          "title": "Invalid data source or URL",
-          "message": "The input JSON is invalid or this URL points to an invalid JSON:\n\n"
-        }
+      "error": {
+        "title": "Invalid data source or URL",
+        "message": "The input JSON is invalid or this URL points to an invalid JSON:\n\n"
       }
     },
     "errorMessages": {
