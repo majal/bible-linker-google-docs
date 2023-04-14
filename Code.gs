@@ -146,7 +146,13 @@ function createMenu() {
     
   };
 
+  // Set bibleDataSource submenu
   var menuChooseBibleDataSource = ui.createMenu(bibleData.strings.menu.chooseDataSource);
+
+  // Add custom entry at the beginning of submenu
+  menuChooseBibleDataSource
+    .addItem(bibleData.strings.menu.customDataSource, 'customDataSource')
+    .addSeparator();
 
   // Load dynamic values to bibleDataSources submenu
   for ( let bibleDataSourceDynamic of Object.keys(BIBLE_DATA_SOURCES) ) {
@@ -541,9 +547,9 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
   };
 
   // Get error messages
-  let downloadJSONTitle                 = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.title;
-  let downloadJSONMessageBeforeSingular = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforeSingular;
-  let downloadJSONMessageBeforePlural   = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforePlural;
+  let title                 = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.title;
+  let messageBeforeSingular = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforeSingular;
+  let messageBeforePlural   = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforePlural;
 
   // Access Docs UI
   var ui = DocumentApp.getUi();
@@ -593,7 +599,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     if ( ! bibleDataJSON ) {
 
       // Send alert to UI and return null
-      ui.alert(downloadJSONTitle, downloadJSONMessageBeforePlural + bibleDataSourceUrl.join('\n'), ui.ButtonSet.OK);
+      ui.alert(title, messageBeforePlural + bibleDataSourceUrl.join('\n'), ui.ButtonSet.OK);
       return null;
 
     };
@@ -609,7 +615,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     // If URL invalid, send alert to UI and return null
     } catch {
 
-      ui.alert(downloadJSONTitle, downloadJSONMessageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
       return null;
     
     };
@@ -623,14 +629,14 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     // If not a valid JSON, send alert to UI and return null
     } catch {
 
-      ui.alert(downloadJSONTitle, downloadJSONMessageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
       return null;
 
     };
   
   };
 
-}; // END: getBibleData(bibleDataSourceUrl)
+}; // END: getBibleData(bibleDataSourceUrl, bibleDataSource)
 
 
 function chooseDataSource(bibleDataSource) {
@@ -683,21 +689,84 @@ function customDataSource() {
   let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
   if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
+  // Get strings
+  let inputTitle     = bibleData.strings.customDataSource.input.title;
+  let inputMsgBefore = bibleData.strings.customDataSource.input.messageBefore;
+  let inputMsgAfter  = bibleData.strings.customDataSource.input.messageAfter;
+  let errorTitle     = bibleData.strings.customDataSource.error.title;
+  let errorMessage   = bibleData.strings.customDataSource.error.message;
+
   // Access Docs UI
   var ui = DocumentApp.getUi();
 
-  var response = ui.prompt('Custom data source', 'JSON data source URL:', ui.ButtonSet.OK_CANCEL);
+  // Initialize variables
+  let customBibleDataJSON;
 
-  // Process the user's response.
-  if (response.getSelectedButton() == ui.Button.OK) {
-    Logger.log('The user\'s name is %s.', response.getResponseText());
-  } else if (response.getSelectedButton() == ui.Button.CANCEL) {
-    Logger.log('The user didn\'t want to provide a name.');
+  // Get custom JSON or URL
+  let response = ui.prompt(inputTitle, inputMsgBefore + JSON.stringify(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default], null, '\u00a0\u00a0') + '\n\n' + inputMsgAfter, ui.ButtonSet.OK_CANCEL);
+
+  // If the user clicked the OK button
+  if ( response.getSelectedButton() == ui.Button.OK ) {
+
+    // Check if input is valid JSON
+    try {
+
+      customBibleDataJSON = JSON.parse(response.getResponseText());
+
+      // If JSON is valid ...
+      if ( customBibleDataJSON && typeof customBibleDataJSON === "object") {
+
+        // Upload to userProperties
+        try {
+
+          userProperties.setProperty('bibleDataSource', 'custom');
+          userProperties.setProperty('customBibleDataSource', JSON.stringify(customBibleDataJSON));
+          return;
+        
+        // Catch if userProperties.setProperty() returns an error
+        } catch(e) {
+
+          // Notify about the error
+          ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON), ui.ButtonSet.OK);
+
+          // Restart function
+          customDataSource();
+          return;
+        
+        };
+
+      };
+
+    // If not valid JSON, try if it is a URL pointing to a valid JSON
+    } catch {
+
+      // If URL is invalid or did not return a valid JSON
+      if ( ! getBibleData(response.getResponseText(), bibleDataSource) ) {
+      
+        // Notify about the error
+        // ui.alert(errorTitle, errorMessage + response.getResponseText(), ui.ButtonSet.OK);
+
+        // Restart function
+        customDataSource();
+        return;
+      
+      };
+    
+      // If URL is valid, upload URL to userProperties
+      userProperties.setProperty('bibleDataSource', 'custom');
+      userProperties.setProperty('customBibleDataSource', response.getResponseText());
+      return;
+
+    };
+
+  // If the user did not click the OK button, just exit
   } else {
-    Logger.log('The user clicked the close button in the dialog\'s title bar.');
+    
+    return;
+
   };
 
-};
+}; // END: customDataSource()
 
 
 function studyTools() {
