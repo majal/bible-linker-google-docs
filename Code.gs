@@ -19,7 +19,10 @@ const BIBLE_DATA_SOURCES = {
   "default": "en_jw",
   "en_jw": {
     "displayName": "English (JW.org)",
-    "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
+    "url": [
+      "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
+      "https://pastebin.com/raw/0W8738GK"
+    ],
     "strings": {
       "errors": {
         "nullBibleData": "No Bible data available",
@@ -557,7 +560,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
       // Try to download JSON
       try {
       
-        bibleData = UrlFetchApp.fetch(bibleDataSourceUrl);
+        bibleData = UrlFetchApp.fetch(bibleDataSourceUrl[i]);
       
       // Continue with next URL in array if URL is invalid
       } catch {
