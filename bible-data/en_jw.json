@@ -17,7 +17,7 @@
       },
       "customDataSource": {
         "title": "Custom data source",
-        "message": "Input valid JSON data or URL to JSON file:"
+        "message": "Input valid JSON, or URL to JSON file:"
       }
     }
   },
