@@ -1,12 +1,14 @@
 /* ***********************************************************************************
  * 
- *  Bible linker for Google Docs v2
+ *  Bible linker for Google Docs
  * 
  *  A Google Documents Apps Script that searches for Bible verses and creates links to
  *  a selection of online Bible sources.
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
+ *  v2.0.0-alpha-1.0.0
+ * 
  *********************************************************************************** */
 
 ////////////////////////////////////////////////////////////
@@ -17,7 +19,17 @@ const BIBLE_DATA_SOURCES = {
   "default": "en_jw",
   "en_jw": {
     "displayName": "English (JW.org)",
-    "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json"
+    "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.json",
+    "strings": {
+      "errors": {
+        "nullBibleData": "No Bible data available",
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+        }
+      }
+    }
   }
 };
 
@@ -53,8 +65,9 @@ function dynamicMenuGenerate() {
       bibleDataSource = BIBLE_DATA_SOURCES.default;
     };
 
-    // Pull bibleVersions from default data source
-    let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+    // Fetch bibleData from external source, throw error if bibleData is null
+    let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+    if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
     
     // Load bibleVersions into array, except 'default'
     bibleVersions = [];
@@ -96,8 +109,9 @@ function createMenu() {
     bibleDataSource = BIBLE_DATA_SOURCES.default;
   };
 
-  // Fetch bibleData from external source
-  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
@@ -172,8 +186,9 @@ function bibleLinker(bibleDataSource, bibleVersion) {
     bibleDataSource = BIBLE_DATA_SOURCES.default;
   };
 
-  // Fetch bibleData from external source
-  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
@@ -194,7 +209,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
   // Initialize Google Document
   var doc = DocumentApp.getActiveDocument();
 
-  // Initialize access to Docs UI
+  // Access Docs UI
   var ui = DocumentApp.getUi();
 
   // Note if document has active selection
@@ -508,9 +523,112 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
 }; // END: function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd)
 
 
-//////////////////////////
+/////////////////////
 // Other functions //
-//////////////////////////
+/////////////////////
+
+function getBibleData(bibleDataSourceUrl, bibleDataSource) {
+
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
+  // Get error messages
+  let downloadJSONTitle                 = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.title;
+  let downloadJSONMessageBeforeSingular = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforeSingular;
+  let downloadJSONMessageBeforePlural   = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforePlural;
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  // Define variables
+  let bibleData, bibleDataJSON;
+
+  // If data source contains multiple URLs, isArray
+  if ( Array.isArray(bibleDataSourceUrl) ) {
+
+    // For each URL in array, exit once a proper JSON is found
+    for ( let i = 0; i < bibleDataSourceUrl.length; i++ ) {
+
+      // Try to download JSON
+      try {
+      
+        bibleData = UrlFetchApp.fetch(bibleDataSourceUrl);
+      
+      // Continue with next URL in array if URL is invalid
+      } catch {
+
+        continue;
+      
+      };
+
+      // If JSON exists and downloadable
+      if ( bibleData.getResponseCode() == 200 ) {
+
+        // Return and exit if valid JSON
+        try {
+
+          bibleDataJSON = JSON.parse(bibleData.getContentText());
+          return bibleDataJSON;
+
+        // Continue with next URL in array if JSON is invalid
+        } catch {
+
+          continue;
+        
+        };
+
+      };
+
+    };
+
+    // If no valid JSON is found among all the URLs
+    if ( ! bibleDataJSON ) {
+
+      // Send alert to UI and return null
+      ui.alert(downloadJSONTitle, downloadJSONMessageBeforePlural + bibleDataSourceUrl.join('\n'), ui.ButtonSet.OK);
+      return null;
+
+    };
+
+  // If data source contain only a single URL string
+  } else {
+
+    // Try to download JSON
+    try {
+    
+      bibleData = UrlFetchApp.fetch(bibleDataSourceUrl);
+    
+    // If URL invalid, send alert to UI and return null
+    } catch {
+
+      ui.alert(downloadJSONTitle, downloadJSONMessageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      return null;
+    
+    };
+    
+    // Return and exit if valid JSON
+    try {
+
+      bibleDataJSON = JSON.parse(bibleData.getContentText());
+      return bibleDataJSON;
+    
+    // If not a valid JSON, send alert to UI and return null
+    } catch {
+
+      ui.alert(downloadJSONTitle, downloadJSONMessageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      return null;
+
+    };
+  
+  };
+
+}; // END: getBibleData(bibleDataSourceUrl)
+
 
 function chooseDataSource(bibleDataSource) {
   
@@ -522,8 +640,9 @@ function chooseDataSource(bibleDataSource) {
     bibleDataSource = BIBLE_DATA_SOURCES.default;
   };
 
-  // Fetch bibleData from external source
-  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   let updateTitle         = bibleData.strings.bibleDataSource.update.title;
   let updateMessageBefore = bibleData.strings.bibleDataSource.update.messageBefore;
@@ -543,6 +662,41 @@ function chooseDataSource(bibleDataSource) {
 };
 
 
+function customDataSource() {
+
+  // Get user's last used bibleDataSource
+  const userProperties = PropertiesService.getUserProperties();
+  let bibleDataSource = userProperties.getProperty('bibleDataSource');
+
+  // If there is no bibleDataSource
+  // or bibleDataSource not included in current list (keys)
+  // then set to default value
+  if ( ! bibleDataSource
+  || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+  };
+
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  var response = ui.prompt('Custom data source', 'JSON data source URL:', ui.ButtonSet.OK_CANCEL);
+
+  // Process the user's response.
+  if (response.getSelectedButton() == ui.Button.OK) {
+    Logger.log('The user\'s name is %s.', response.getResponseText());
+  } else if (response.getSelectedButton() == ui.Button.CANCEL) {
+    Logger.log('The user didn\'t want to provide a name.');
+  } else {
+    Logger.log('The user clicked the close button in the dialog\'s title bar.');
+  };
+
+};
+
+
 function studyTools() {
 
   // Get user's last used bibleDataSource
@@ -557,8 +711,9 @@ function studyTools() {
     bibleDataSource = BIBLE_DATA_SOURCES.default;
   };
 
-  // Fetch bibleData from external source
-  let bibleData = JSON.parse(UrlFetchApp.fetch(BIBLE_DATA_SOURCES[bibleDataSource].url));
+  // Fetch bibleData from external source, throw error if bibleData is null
+  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
   
   // Fetch studyTools HTML content
   let htmlContent = UrlFetchApp.fetch(bibleData.html.studyTools.url);
