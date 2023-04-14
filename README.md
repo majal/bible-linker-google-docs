@@ -5,7 +5,7 @@ A Google Documents Apps Script and Add-on that searches for Bible verses and con
 
 ### As an add-on
 1. Install the **[Bible Linker add-on](https://workspace.google.com/marketplace/app/bible_linker/483504290926)** from Google Marketplace.  
-For those who installed Bible Linker via Google Marketplace before April 12, 2023, you will need to reinstall the add-on as v2 required an additional permission to make Bible Linker [modular](https://github.com/majal/bible-linker-google-docs/discussions/24#discussioncomment-5553877).
+For those who installed Bible Linker via Google Marketplace **before April 12, 2023,** you will need to reinstall the add-on as v2 required an additional permission to make Bible Linker [modular](https://github.com/majal/bible-linker-google-docs/discussions/24#discussioncomment-5553877).
 2. In your Google Document, find the add-on under **Extensions > Bible Linker.** (For those using Google Workspace accounts, the add-on may be found under Add-ons > Bible Linker.)
 
 ### As a stand-alone script 
