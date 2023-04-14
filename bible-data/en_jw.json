@@ -14,10 +14,6 @@
           "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
           "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
         }
-      },
-      "customDataSource": {
-        "title": "Custom data source",
-        "message": "Input valid JSON, or URL to JSON file:"
       }
     }
   },
@@ -46,7 +42,8 @@
     "customDataSource": {
       "input": {
         "title": "Custom data source",
-        "message": "Input valid JSON data or URL to JSON file:\n\n"
+        "messageBefore": "Sample JSON data:\n\n",
+        "messageAfter": "Input valid JSON data or URL to JSON file:\n\n"
       },
       "error": {
         "title": "Invalid data source or URL",
