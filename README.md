@@ -9,7 +9,7 @@ A Google Documents Apps Script and Add-on that searches for Bible verses and con
 
 ### As a stand-alone script 
 1. In your Google Document, click **Extensions > Apps Script.**
-2. In the page that will open, **copy and paste** the contents of **[Code.gs](https://github.com/majal/bible-linker-google-docs/blob/main/Code.gs).**
+2. In the page that will open, **copy and paste** the contents of **[Code.gs](Code.gs).**
 3. **Save.** You may now close the Apps Script window and **refresh** your document.
 4. Find Bible Linker in the **top-level Menu.** Enjoy!
 
@@ -20,8 +20,11 @@ Coders are welcome to improve the script. It's open source. MIT license.
 
 ### Things that could be worked on:
 * Find and fix bugs
-* Support for other languages
-* Support for more online Bibles
+* ~~Support for other languages~~ Done in v2!
+* ~~Support for more online Bibles~~ Done in v2!
+* Add new languages by creating JSON files.  
+For samples of valid JSON files, see the [bible-data](bible-data) directory.  
+Testing of new JSON files can be done via the menu **Extensions > Bible Linker > Choose language (data source) > Set custom data source ...**
 * Make it more fun?
 
 ## Other copyrights
