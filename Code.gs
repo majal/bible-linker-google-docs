@@ -33,6 +33,19 @@ const BIBLE_DATA_SOURCES = {
         }
       }
     }
+  },
+  "custom": {
+    "displayName": "Custom data source",
+    "strings": {
+      "errors": {
+        "nullBibleData": "No custom data available",
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+        }
+      }
+    }
   }
 };
 
@@ -69,7 +82,7 @@ function dynamicMenuGenerate() {
     };
 
     // Fetch bibleData from external source, throw error if bibleData is null
-    let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+    let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
     if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
     
     // Load bibleVersions into array, except 'default'
@@ -113,7 +126,7 @@ function createMenu() {
   };
 
   // Fetch bibleData from external source, throw error if bibleData is null
-  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
   if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   // Set bibleVersion to default if not found in Bible data
@@ -141,18 +154,13 @@ function createMenu() {
     let bibleVersionDisplayName = bibleData.bibleVersions[bibleVersionDynamic].displayName;
     dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
 
-    let pointer = ( bibleVersion == bibleVersionDynamic ) ? selectorSelected : selectorUnselected;
+    let pointer = bibleVersion == bibleVersionDynamic ? selectorSelected : selectorUnselected;
     menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
     
   };
 
   // Set bibleDataSource submenu
   var menuChooseBibleDataSource = ui.createMenu(bibleData.strings.menu.chooseDataSource);
-
-  // Add custom entry at the beginning of submenu
-  menuChooseBibleDataSource
-    .addItem(bibleData.strings.menu.customDataSource, 'customDataSource')
-    .addSeparator();
 
   // Load dynamic values to bibleDataSources submenu
   for ( let bibleDataSourceDynamic of Object.keys(BIBLE_DATA_SOURCES) ) {
@@ -162,10 +170,15 @@ function createMenu() {
     let bibleDataSourceDisplayName = BIBLE_DATA_SOURCES[bibleDataSourceDynamic].displayName;
     dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
 
-    let pointer = ( bibleDataSource == bibleDataSourceDynamic ) ? selectorSelected : selectorUnselected;
+    let pointer = bibleDataSource == bibleDataSourceDynamic ? selectorSelected : selectorUnselected;
     menuChooseBibleDataSource.addItem(pointer + bibleDataSourceDisplayName, dynamicMenuBibleDataSource);
     
   };
+
+  // Add custom entry at the end of submenu
+  menuChooseBibleDataSource
+    .addSeparator()
+    .addItem(bibleData.strings.menu.customDataSource, 'chooseDataSourceCustom');
 
   // Get studyToolsDisplayName
   let studyToolsDisplayName = bibleData.html.studyTools.displayName;
@@ -196,7 +209,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
   };
 
   // Fetch bibleData from external source, throw error if bibleData is null
-  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
   if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   // Set bibleVersion to default if not found in Bible data
@@ -639,6 +652,32 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
 }; // END: getBibleData(bibleDataSourceUrl, bibleDataSource)
 
 
+function getBibleDataCustom() {
+
+  const userProperties = PropertiesService.getUserProperties();
+  let customBibleData = userProperties.getProperty('customBibleData');
+
+  if ( typeof customBibleData === "object" ) {
+
+    try {
+
+      return getBibleData(JSON.parse(customBibleData).url, 'custom');
+    
+    } catch {
+    
+      return;
+    
+    };
+
+  } else {
+
+    return getBibleData(customBibleData, 'custom');
+
+  }
+
+};
+
+
 function chooseDataSource(bibleDataSource) {
   
   // If there is no bibleDataSource
@@ -650,7 +689,7 @@ function chooseDataSource(bibleDataSource) {
   };
 
   // Fetch bibleData from external source, throw error if bibleData is null
-  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
   if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   let updateTitle         = bibleData.strings.bibleDataSource.update.title;
@@ -671,7 +710,7 @@ function chooseDataSource(bibleDataSource) {
 };
 
 
-function customDataSource() {
+function chooseDataSourceCustom() {
 
   // Get user's last used bibleDataSource
   const userProperties = PropertiesService.getUserProperties();
@@ -686,7 +725,7 @@ function customDataSource() {
   };
 
   // Fetch bibleData from external source, throw error if bibleData is null
-  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
   if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
 
   // Get strings
@@ -703,7 +742,11 @@ function customDataSource() {
   let customBibleDataJSON;
 
   // Get custom JSON or URL
-  let response = ui.prompt(inputTitle, inputMsgBefore + JSON.stringify(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default], null, '\u00a0\u00a0') + '\n\n' + inputMsgAfter, ui.ButtonSet.OK_CANCEL);
+  // let response = ui.prompt(inputTitle, inputMsgBefore + JSON.stringify(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default], null, '\u00a0\u00a0') + '\n\n' + inputMsgAfter, ui.ButtonSet.OK_CANCEL);
+  let response = ui.prompt(inputTitle, inputMsgAfter, ui.ButtonSet.OK_CANCEL);
+
+  // Exit if there is no input
+  if ( response.getResponseText().length == 0 ) return;
 
   // If the user clicked the OK button
   if ( response.getSelectedButton() == ui.Button.OK ) {
@@ -714,13 +757,14 @@ function customDataSource() {
       customBibleDataJSON = JSON.parse(response.getResponseText());
 
       // If JSON is valid ...
-      if ( customBibleDataJSON && typeof customBibleDataJSON === "object") {
+      if ( customBibleDataJSON && typeof customBibleDataJSON === "object" ) {
 
         // Upload to userProperties
         try {
 
           userProperties.setProperty('bibleDataSource', 'custom');
-          userProperties.setProperty('customBibleDataSource', JSON.stringify(customBibleDataJSON));
+          userProperties.setProperty('customBibleData', JSON.stringify(customBibleDataJSON));
+          createMenu();
           return;
         
         // Catch if userProperties.setProperty() returns an error
@@ -730,7 +774,7 @@ function customDataSource() {
           ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON), ui.ButtonSet.OK);
 
           // Restart function
-          customDataSource();
+          chooseDataSourceCustom();
           return;
         
         };
@@ -747,14 +791,15 @@ function customDataSource() {
         // ui.alert(errorTitle, errorMessage + response.getResponseText(), ui.ButtonSet.OK);
 
         // Restart function
-        customDataSource();
+        chooseDataSourceCustom();
         return;
       
       };
     
       // If URL is valid, upload URL to userProperties
       userProperties.setProperty('bibleDataSource', 'custom');
-      userProperties.setProperty('customBibleDataSource', response.getResponseText());
+      userProperties.setProperty('customBibleData', response.getResponseText());
+      createMenu();
       return;
 
     };
@@ -766,7 +811,7 @@ function customDataSource() {
 
   };
 
-}; // END: customDataSource()
+}; // END: chooseDataSourceCustom()
 
 
 function studyTools() {
@@ -784,7 +829,7 @@ function studyTools() {
   };
 
   // Fetch bibleData from external source, throw error if bibleData is null
-  let bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+  let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
   if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
   
   // Fetch studyTools HTML content
