@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1
+ *  v2.0.0-beta-1.0.2
  * 
  *********************************************************************************** */
 
@@ -846,11 +846,18 @@ function studyTools() {
 // Helper functions //
 //////////////////////
 
-function onInstall() {
-  onOpen();
+function onInstall(e) {
+  onOpen(e);
 };
 
 
-function onOpen() {
-  createMenu();
+function onOpen(e) {
+
+  var ui = DocumentApp.getUi();
+  
+  var menu = ui.createMenu('Bible Linker');
+  menu
+    .addItem('Enable Bible Linker', 'createMenu')
+    .addToUi();
+
 };
