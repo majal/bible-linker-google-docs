@@ -62,7 +62,7 @@
     "studyTools": {
       "displayName": "📝\u00a0\u00a0Study tools",
       "windowLabel": "Bible study tools",
-      "url": "https://github.com/majal/bible-linker-google-docs/raw/linker-v2-commenter/bible-data/en_jw.html"
+      "url": "https://raw.githubusercontent.com/majal/bible-linker-google-docs/main/bible-data/en_jw.html"
     }
   },
   "bookNames": {
