@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.0.2
+ *  v2.0.0-beta-1.2.0
  * 
  *********************************************************************************** */
 
@@ -23,7 +23,31 @@ const BIBLE_DATA_SOURCES = {
       "https://github.com/majal/bible-linker-google-docs/raw/main/bible-data/en_jw.json",
       "https://pastebin.com/raw/0W8738GK"
     ],
+    "bibleVersions": [
+      "en_jw_nwt",
+      "en_jw_nwt_wol",
+      "en_jw_nwtsty",
+      "en_jw_nwtsty_wol",
+      "en_jw_nwtrbi8",
+      "en_jw_nwtrbi8_wol",
+      "en_jw_kjv",
+      "en_jw_kjv_wol",
+      "en_jw_by",
+      "en_jw_by_wol",
+      "en_jw_asv",
+      "en_jw_asv_wol",
+      "en_jw_ebr",
+      "en_jw_ebr_wol",
+      "en_jw_int",
+      "en_jw_int_wol"
+    ],
     "strings": {
+      "activate": {
+        "appTitle": "Bible Linker",
+        "activationItem": "Activate Bible Linker",
+        "activationTitle": "Bible Linker enabled",
+        "activationMsg": "You may now use Bible Linker via the menu. Please open the menu again."
+      },
       "errors": {
         "nullBibleData": "No Bible data available",
         "downloadJSON": {
@@ -37,6 +61,12 @@ const BIBLE_DATA_SOURCES = {
   "custom": {
     "displayName": "Custom data source",
     "strings": {
+      "activate": {
+        "appTitle": "Bible Linker",
+        "activationItem": "Activate Bible Linker",
+        "activationTitle": "Bible Linker enabled",
+        "activationMsg": "You may now use Bible Linker via the menu. Please open the menu again."
+      },
       "errors": {
         "nullBibleData": "No custom data available",
         "downloadJSON": {
@@ -57,40 +87,27 @@ dynamicMenuGenerate();
 
 function dynamicMenuGenerate() {
 
-  // Get user's last used bibleVersions
-  const userProperties = PropertiesService.getUserProperties();
-  let bibleDataSource = userProperties.getProperty('bibleDataSource');
-  let bibleVersions = userProperties.getProperty('bibleVersions');
+  let bibleDataSource, bibleVersions;
 
-  // Error remediation
-  // If bibleVersions is not a proper JSON, set to null
+  // Try-catch to check if PropertiesService is available, i.e. ScriptApp.AuthMode.NONE
   try {
-    bibleVersions = JSON.parse(bibleVersions);
+
+    const userProperties = PropertiesService.getUserProperties();
+    bibleDataSource = userProperties.getProperty('bibleDataSource');
+    bibleVersions   = userProperties.getProperty('bibleVersions');
+
+    // Error mitigation in case JSON from PropertiesService is malformed
+    try {
+      bibleVersions = JSON.parse(bibleVersions);
+    } catch {
+      bibleVersions = BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].bibleVersions;
+    };
+
+  // If ScriptApp.AuthMode.NONE
   } catch {
-    bibleVersions = null;
-  };
 
-  // If there is no last used bibleVersions ... 
-  if ( ! bibleVersions ) {
-
-    // If there is no bibleDataSource
-    // or bibleDataSource not included in current list (keys)
-    // then set to default value
-    if ( ! bibleDataSource
-    || ! Object.keys(BIBLE_DATA_SOURCES).includes(bibleDataSource) ) {
-      bibleDataSource = BIBLE_DATA_SOURCES.default;
-    };
-
-    // Fetch bibleData from external source, throw error if bibleData is null
-    let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
-    if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
-    
-    // Load bibleVersions into array, except 'default'
-    bibleVersions = [];
-    for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
-      if ( bvk == 'default' ) continue;
-      bibleVersions.splice(bibleVersions.length, 0, bvk);
-    };
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+    bibleVersions   = BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].bibleVersions;
 
   };
 
@@ -139,7 +156,7 @@ function createMenu() {
 
   // Set main menu item
   var ui = DocumentApp.getUi();
-  var menu = ui.createMenu(bibleData.strings.menu.title)
+  var menu = ui.createAddonMenu()
     .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersion )
     .addSeparator();
 
@@ -155,6 +172,7 @@ function createMenu() {
     dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
 
     let pointer = bibleVersion == bibleVersionDynamic ? selectorSelected : selectorUnselected;
+
     menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
     
   };
@@ -166,11 +184,23 @@ function createMenu() {
   for ( let bibleDataSourceDynamic of Object.keys(BIBLE_DATA_SOURCES) ) {
 
     if ( bibleDataSourceDynamic == 'default' ) continue;
-    
+
     let bibleDataSourceDisplayName = BIBLE_DATA_SOURCES[bibleDataSourceDynamic].displayName;
+
+    // Only show custom data source if actually present
+    if ( bibleDataSourceDynamic == 'custom' ) {
+
+      let customBibleData = userProperties.getProperty('customBibleData');
+      if ( ! customBibleData ) continue;
+
+      if ( typeof customBibleData === 'string' ) bibleDataSourceDisplayName = 'Custom: ' + customBibleData;
+
+    };
+    
     dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
 
     let pointer = bibleDataSource == bibleDataSourceDynamic ? selectorSelected : selectorUnselected;
+
     menuChooseBibleDataSource.addItem(pointer + bibleDataSourceDisplayName, dynamicMenuBibleDataSource);
     
   };
@@ -657,23 +687,32 @@ function getBibleDataCustom() {
   const userProperties = PropertiesService.getUserProperties();
   let customBibleData = userProperties.getProperty('customBibleData');
 
-  if ( typeof customBibleData === "object" ) {
+  // Try if customBibleData is a JSON object
+  try {
 
-    try {
+    let url = JSON.parse(customBibleData).url;
 
-      return getBibleData(JSON.parse(customBibleData).url, 'custom');
+    // If JSON contains URL
+    if ( url ) {
+
+      return getBibleData(url, 'custom');
     
-    } catch {
-    
-      return;
+    // If JSON does not contains URL, reset to default
+    } else {
+
+      userProperties.setProperty('bibleDataSource', BIBLE_DATA_SOURCES.default);
+      userProperties.deleteProperty('customBibleData');
+
+      createMenu();
     
     };
-
-  } else {
-
+  
+  // If customBibleData is not JSON
+  } catch {
+  
     return getBibleData(customBibleData, 'custom');
-
-  }
+  
+  };
 
 };
 
@@ -730,10 +769,12 @@ function chooseDataSourceCustom() {
 
   // Get strings
   let inputTitle     = bibleData.strings.customDataSource.input.title;
-  let inputMsgBefore = bibleData.strings.customDataSource.input.messageBefore;
+  // let inputMsgBefore = bibleData.strings.customDataSource.input.messageBefore;
   let inputMsgAfter  = bibleData.strings.customDataSource.input.messageAfter;
   let errorTitle     = bibleData.strings.customDataSource.error.title;
   let errorMessage   = bibleData.strings.customDataSource.error.message;
+  let successTitle     = bibleData.strings.customDataSource.success.title;
+  let successMsgBefore = bibleData.strings.customDataSource.success.messageBefore;
 
   // Access Docs UI
   var ui = DocumentApp.getUi();
@@ -742,7 +783,6 @@ function chooseDataSourceCustom() {
   let customBibleDataJSON;
 
   // Get custom JSON or URL
-  // let response = ui.prompt(inputTitle, inputMsgBefore + JSON.stringify(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default], null, '\u00a0\u00a0') + '\n\n' + inputMsgAfter, ui.ButtonSet.OK_CANCEL);
   let response = ui.prompt(inputTitle, inputMsgAfter, ui.ButtonSet.OK_CANCEL);
 
   // Exit if there is no input
@@ -757,59 +797,81 @@ function chooseDataSourceCustom() {
       customBibleDataJSON = JSON.parse(response.getResponseText());
 
       // If JSON is valid ...
-      if ( customBibleDataJSON && typeof customBibleDataJSON === "object" ) {
+      if ( customBibleDataJSON ) {
 
-        // Upload to userProperties
-        try {
+        // Check if URL(s) point to valid JSON
+        if ( getBibleData(customBibleDataJSON.url, bibleDataSource) ) {
 
-          userProperties.setProperty('bibleDataSource', 'custom');
-          userProperties.setProperty('customBibleData', JSON.stringify(customBibleDataJSON));
-          createMenu();
-          return;
-        
-        // Catch if userProperties.setProperty() returns an error
-        } catch(e) {
+          // Upload to userProperties
+          try {
+
+            userProperties.setProperty('bibleDataSource', 'custom');
+            userProperties.setProperty('customBibleData', JSON.stringify(customBibleDataJSON));
+
+            ui.alert(successTitle, successMsgBefore + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
+            
+            createMenu();            
+            return;
+          
+          // Catch if userProperties.setProperty() returns an error
+          } catch(e) {
+
+            // Notify about the error
+            ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
+
+            // Restart function
+            chooseDataSourceCustom();
+            return;
+          
+          };
+
+        // If URL(s) in JSON is invalid
+        } else {
 
           // Notify about the error
-          ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON), ui.ButtonSet.OK);
+          // ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
 
           // Restart function
           chooseDataSourceCustom();
           return;
-        
-        };
+
+        }
 
       };
 
     // If not valid JSON, try if it is a URL pointing to a valid JSON
     } catch {
 
-      // If URL is invalid or did not return a valid JSON
-      if ( ! getBibleData(response.getResponseText(), bibleDataSource) ) {
+      // If URL is valid, upload URL to userProperties
+      if ( getBibleData(response.getResponseText(), bibleDataSource) ) {
+
+        userProperties.setProperty('bibleDataSource', 'custom');
+        userProperties.setProperty('customBibleData', response.getResponseText());
+
+        ui.alert(successTitle, successMsgBefore + response.getResponseText(), ui.ButtonSet.OK);
+
+        createMenu();
+        return;
       
+      // If URL is invalid
+      } else {
+    
         // Notify about the error
         // ui.alert(errorTitle, errorMessage + response.getResponseText(), ui.ButtonSet.OK);
 
         // Restart function
         chooseDataSourceCustom();
         return;
-      
+
       };
-    
-      // If URL is valid, upload URL to userProperties
-      userProperties.setProperty('bibleDataSource', 'custom');
-      userProperties.setProperty('customBibleData', response.getResponseText());
-      createMenu();
-      return;
 
-    };
+    }; // END: Check if input is valid JSON
 
-  // If the user did not click the OK button, just exit
   } else {
     
     return;
 
-  };
+  }; // END: If the user clicked the OK button
 
 }; // END: chooseDataSourceCustom()
 
@@ -842,22 +904,49 @@ function studyTools() {
 };
 
 
+function activateAddon() {
+
+  createMenu();
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  ui.alert(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.activationTitle,
+    BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.activationMsg,
+    ui.ButtonSet.OK);  
+
+};
+
 //////////////////////
 // Helper functions //
 //////////////////////
 
 function onInstall(e) {
+
   onOpen(e);
+
 };
 
 
 function onOpen(e) {
 
+  // Access Docs UI
   var ui = DocumentApp.getUi();
   
-  var menu = ui.createMenu('Bible Linker');
-  menu
-    .addItem('Enable Bible Linker', 'createMenu')
-    .addToUi();
+  // If AuthMode not FULL, create temporary menu
+  if (e && e.authMode != ScriptApp.AuthMode.FULL) {
+
+    var menu = ui.createMenu(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.appTitle);
+    menu
+      .addItem(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.activationItem, 'activateAddon')
+      .addToUi();
+
+  // If ScriptApp.AuthMode is FULL, activated when passed from onInstall(e)
+  // https://developers.google.com/apps-script/add-ons/concepts/editor-auth-lifecycle
+  } else {
+
+    createMenu();
+
+  };
 
 };
