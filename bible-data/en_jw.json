@@ -1,4 +1,7 @@
 {
+  "locale": "en",
+  "bookCount": 66,
+  "bookSingleChapters": [31, 57, 63, 64, 65],
   "info": {
     "id": "en_jw",
     "displayName": "English (JW.org)",
@@ -17,9 +20,6 @@
       }
     }
   },
-  "locale": "en",
-  "bookCount": 66,
-  "bookSingleChapters": [31, 57, 63, 64, 65],
   "strings": {
     "menu": {
       "title": "Bible Linker v2 (beta)",
@@ -44,6 +44,10 @@
         "title": "Custom data source",
         "messageBefore": "Sample JSON data:\n\n",
         "messageAfter": "Input URL to valid JSON Bible data:\n\n"
+      },
+      "success": {
+        "title": "New data source",
+        "messageBefore": "This data source is now selected:\n\n"
       },
       "error": {
         "title": "Invalid data source or URL",
