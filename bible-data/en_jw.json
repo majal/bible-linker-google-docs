@@ -48,7 +48,7 @@
       },
       "success": {
         "title": "New custom data source",
-        "messageBefore": "Successfully loaded:\n\n"
+        "messageBefore": "✔ Successfully loaded:\n\n"
       },
       "error": {
         "title": "Invalid JSON or URL",
