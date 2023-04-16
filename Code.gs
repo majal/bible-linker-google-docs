@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.2.1
+ *  v2.0.0-beta-1.3.0
  * 
  *********************************************************************************** */
 
@@ -149,10 +149,11 @@ function createMenu() {
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
 
-  // Get needed strings
-  let displayName = bibleData.bibleVersions[bibleVersion].displayName;
+  // Get needed strings and values
+  let displayName        = bibleData.bibleVersions[bibleVersion].displayName;
   let selectorSelected   = bibleData.strings.menu.selector.selected;
   let selectorUnselected = bibleData.strings.menu.selector.unselected;
+  let lengthLimit        = bibleData.strings.menu.lengthLimit;
 
   // Set main menu item
   var ui = DocumentApp.getUi();
@@ -169,10 +170,17 @@ function createMenu() {
     if ( bibleVersionDynamic == 'default' ) continue;
     
     let bibleVersionDisplayName = bibleData.bibleVersions[bibleVersionDynamic].displayName;
+
+    // If bibleVersionDisplayName is over lengthLimit, truncate and add ellipsis …
+    bibleVersionDisplayName = bibleVersionDisplayName.length > lengthLimit ? bibleVersionDisplayName.substring(0, lengthLimit) + '\u00a0…' : bibleVersionDisplayName;
+
+    // Generate function names for dynamic submenu
     dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
 
+    // Add pointer at the beginning of the selected menu item
     let pointer = bibleVersion == bibleVersionDynamic ? selectorSelected : selectorUnselected;
 
+    // Add menu item
     menuChooseBibleVersion.addItem(pointer + bibleVersionDisplayName, dynamicMenuBibleVersions);
     
   };
@@ -193,14 +201,20 @@ function createMenu() {
       let customBibleData = userProperties.getProperty('customBibleData');
       if ( ! customBibleData ) continue;
 
-      if ( typeof customBibleData === 'string' ) bibleDataSourceDisplayName = 'Custom: ' + customBibleData;
+      bibleDataSourceDisplayName = 'Custom: ' + customBibleData;
 
     };
+
+    // If bibleDataSourceDisplayName is over lengthLimit, truncate and add ellipsis …
+    bibleDataSourceDisplayName = bibleDataSourceDisplayName.length > lengthLimit ? bibleDataSourceDisplayName.substring(0, lengthLimit) + '\u00a0…' : bibleDataSourceDisplayName;
     
+    // Generate function names for dynamic submenu
     dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
 
+    // Add pointer at the beginning of the selected menu item
     let pointer = bibleDataSource == bibleDataSourceDynamic ? selectorSelected : selectorUnselected;
 
+    // Add menu item
     menuChooseBibleDataSource.addItem(pointer + bibleDataSourceDisplayName, dynamicMenuBibleDataSource);
     
   };
