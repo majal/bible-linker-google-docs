@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.2.0
+ *  v2.0.0-beta-1.2.1
  * 
  *********************************************************************************** */
 
@@ -45,8 +45,8 @@ const BIBLE_DATA_SOURCES = {
       "activate": {
         "appTitle": "Bible Linker",
         "activationItem": "Activate Bible Linker",
-        "activationTitle": "Bible Linker enabled",
-        "activationMsg": "You may now use Bible Linker via the menu. Please open the menu again."
+        "activationTitle": "Bible Linker Enabled",
+        "activationMsg": "You may now use Bible Linker. Please navigate to the menu again to use it."
       },
       "errors": {
         "nullBibleData": "No Bible data available",
@@ -64,8 +64,8 @@ const BIBLE_DATA_SOURCES = {
       "activate": {
         "appTitle": "Bible Linker",
         "activationItem": "Activate Bible Linker",
-        "activationTitle": "Bible Linker enabled",
-        "activationMsg": "You may now use Bible Linker via the menu. Please open the menu again."
+        "activationTitle": "Bible Linker Enabled",
+        "activationMsg": "You may now use Bible Linker. Please navigate to the menu again to use it."
       },
       "errors": {
         "nullBibleData": "No custom data available",
