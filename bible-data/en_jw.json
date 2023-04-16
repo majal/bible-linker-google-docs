@@ -35,7 +35,7 @@
     "bibleDataSource": {
       "update": {
         "title": "New language or data source",
-        "messageBefore": "Activated: ▸\u00a0\u00a0",
+        "messageBefore": "Activated:\u00a0\u00a0▸\u00a0\u00a0",
         "messageAfter": ""
       }
     },
@@ -43,7 +43,7 @@
       "input": {
         "title": "Custom data source",
         "messageBefore": "Sample JSON data:\n\n",
-        "messageAfter": "URL of valid JSON Bible data\n(or JSON with key: \"url\": string or array):\n\n"
+        "messageAfter": "URL of valid JSON Bible data:\n(or JSON with key: \"url\" of data type string or array):\n\n"
       },
       "success": {
         "title": "New custom data source",
