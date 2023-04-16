@@ -43,7 +43,7 @@
       "input": {
         "title": "Custom data source",
         "messageBefore": "Sample JSON data:\n\n",
-        "messageAfter": "Possible inputs:\n\n(1) JSON with key: \"/url\".\nData type of \"/url\" can be string or array.\n\n(2) URL of valid JSON Bible data.\nSee examples here:\nhttps://github.com/majal/bible-linker-google-docs/tree/main/bible-data\n\nEnter JSON or URL:\n\n"
+        "messageAfter": "Possible inputs:\n\n(1) JSON with key: \"/url\".\nData type of \"/url\" can be string or array.\n\n(2) URL of valid JSON Bible data.\nFor examples of valid JSON data, please see here:\nhttps://github.com/majal/bible-linker-google-docs/tree/main/bible-data\n\nEnter JSON or URL:\n\n"
       },
       "success": {
         "title": "New custom data source",
