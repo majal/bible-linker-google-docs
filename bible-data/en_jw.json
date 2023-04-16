@@ -35,7 +35,7 @@
     "bibleDataSource": {
       "update": {
         "title": "New language or data source",
-        "messageBefore": "▸\u00a0\u00a0",
+        "messageBefore": "Activated: ▸\u00a0\u00a0",
         "messageAfter": ""
       }
     },
@@ -43,22 +43,22 @@
       "input": {
         "title": "Custom data source",
         "messageBefore": "Sample JSON data:\n\n",
-        "messageAfter": "Input URL to valid JSON Bible data:\n\n"
+        "messageAfter": "URL of valid JSON Bible data\n(or JSON with key: \"url\": string or array):\n\n"
       },
       "success": {
-        "title": "New data source",
-        "messageBefore": "This data source is now selected:\n\n"
+        "title": "New custom data source",
+        "messageBefore": "Successfully loaded:\n\n"
       },
       "error": {
-        "title": "Invalid data source or URL",
-        "message": "The input JSON is invalid or this URL points to an invalid JSON:\n\n"
+        "title": "Invalid JSON or URL",
+        "message": "The entered JSON has no \"url\" key, or this URL points to an invalid JSON.\n\nFor an example of an external JSON, please visit: https://github.com/majal/bible-linker-google-docs/tree/main/bible-data\n\nHere is the invalid URL or JSON:\n\n"
       }
     },
     "errorMessages": {
       "parserError": {
         "title": "Oops!",
         "messageBefore": "We had a snag here:\n\n",
-        "messageAfter": "\n\nIs there a typo?\n\nTo improve this add-on, you can report errors here:\nhttps://github.com/majal/bible-linker-google-docs/issues"
+        "messageAfter": "\n\nIs there a typo?\n\nTo help improve this add-on, please report errors here:\n\nhttps://github.com/majal/bible-linker-google-docs/issues"
       }
     }
   },
