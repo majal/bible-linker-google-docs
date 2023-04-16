@@ -46,7 +46,7 @@ const BIBLE_DATA_SOURCES = {
         "appTitle": "Bible Linker",
         "activationItem": "Activate Bible Linker",
         "activationTitle": "Bible Linker Enabled",
-        "activationMsg": "You may now use Bible Linker. Please navigate to the menu again to use it."
+        "activationMsg": "You may now use Bible Linker. Please navigate again to the menu to use it."
       },
       "errors": {
         "nullBibleData": "No Bible data available",
@@ -65,7 +65,7 @@ const BIBLE_DATA_SOURCES = {
         "appTitle": "Bible Linker",
         "activationItem": "Activate Bible Linker",
         "activationTitle": "Bible Linker Enabled",
-        "activationMsg": "You may now use Bible Linker. Please navigate to the menu again to use it."
+        "activationMsg": "You may now use Bible Linker. Please navigate again to the menu to use it."
       },
       "errors": {
         "nullBibleData": "No custom data available",
