@@ -22,6 +22,7 @@
   },
   "strings": {
     "menu": {
+      "lengthLimit": 100,
       "title": "Bible Linker",
       "doLink": "🔗\u00a0\u00a0Link verses using",
       "chooseBibleVersion": "📖\u00a0\u00a0Choose Bible version",
