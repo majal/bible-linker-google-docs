@@ -58,8 +58,8 @@
     "errorMessages": {
       "parserError": {
         "title": "Oops!",
-        "messageBefore": "We had a snag here:\n\n",
-        "messageAfter": "\n\nIs there a typo?\n\nTo help improve this add-on, please report errors here:\n\nhttps://github.com/majal/bible-linker-google-docs/issues"
+        "messageBefore": "We had a snag in this line:\n\n",
+        "messageAfter": "\n\nIs there a typo, or did the Linker miss this one?\n\nYou may report this error here:\n\nhttps://github.com/majal/bible-linker-google-docs/issues"
       }
     }
   },
