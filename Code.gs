@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.4.0
+ *  v2.0.0-beta-1.5.0
  * 
  *********************************************************************************** */
 
@@ -120,7 +120,7 @@ function dynamicMenuGenerate() {
 
   // Generate bibleVersion function names for the dynamic menu
   for ( let i = 0; i < bibleVersions.length; i++ ) {
-    var dynamicMenuBibleVersion = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersions[i];
+    var dynamicMenuBibleVersion = 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersions[i];
     this[dynamicMenuBibleVersion] = function() { bibleLinker(bibleDataSource, bibleVersions[i]); };
   };
 
@@ -165,7 +165,7 @@ function createMenu() {
   // Set main menu item
   var ui = DocumentApp.getUi();
   var menu = ui.createAddonMenu()
-    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersion )
+    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion )
     .addSeparator();
 
   // Set bibleVersions submenu
@@ -182,7 +182,7 @@ function createMenu() {
     bibleVersionDisplayName = bibleVersionDisplayName.length > lengthLimit ? bibleVersionDisplayName.substring(0, lengthLimit) + '\u00a0…' : bibleVersionDisplayName;
 
     // Generate function names for dynamic submenu
-    dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + bibleVersionDynamic;
+    dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersionDynamic;
 
     // Add pointer at the beginning of the selected menu item
     let pointer = bibleVersion == bibleVersionDynamic ? selectorSelected : selectorUnselected;
@@ -531,21 +531,30 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
         if ( i == 0 && j == 0 ) linkableStart = referenceStart;
         let linkableEnd = referenceStart + referenceSplits[i][j].search(/\d\D*$/);
         
-        /////////////////////////////////////////////
-        // This is where the actual linking occurs //
-        /////////////////////////////////////////////
+        // Check if the book's chapters and verses are within valid values
+        let chapterMax    = Object.keys(bibleData.bibleChapterVerseCount[bookNum.toString()]).length;
+        let verseStartMax = bibleData.bibleChapterVerseCount[bookNum.toString()][chapterEnd.toString()];
+        let verseEndMax   = bibleData.bibleChapterVerseCount[bookNum.toString()][chapterStart.toString()];
 
-        // Only set links if:
-        // (1) there is no selection (null)
-        // (2) or full line is selected
-        // (2) or searchResult is within selection range // +1 is a quirk of .getEndOffsetInclusive()
-        if ((!searchElementStart || !searchElementEnd)
-        || (searchElementStart == -1 && searchElementEnd == -1)
-        || (searchResultStart >= searchElementStart && searchResultStart + referenceSplits[i][j].length <= searchElementEnd + 1)) {
+        if ( 0 < chapterEnd && chapterEnd <= chapterMax && 0 < verseStart && verseStart <= verseStartMax && 0 < verseEnd && verseEnd <= verseEndMax ) {
 
-          let url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
-          searchResultAstext.setLinkUrl(linkableStart, linkableEnd, url);
-        
+          /////////////////////////////////////////////
+          // This is where the actual linking occurs //
+          /////////////////////////////////////////////
+
+          // Only set links if:
+          // (1) there is no selection (null)
+          // (2) or full line is selected
+          // (3) or searchResult is within selection range // +1 is a quirk of .getEndOffsetInclusive()
+          if ( (!searchElementStart || !searchElementEnd)
+          || (searchElementStart == -1 && searchElementEnd == -1)
+          || (searchResultStart >= searchElementStart && searchResultStart + referenceSplits[i][j].length <= searchElementEnd + 1) ) {
+
+            let url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
+            searchResultAstext.setLinkUrl(linkableStart, linkableEnd, url);
+          
+          };
+
         };
 
         // Set referenceStart for the next iteration
