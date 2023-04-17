@@ -5,6 +5,9 @@ title: Bible Linker for Google Docs
 ## What does it do?
 This app will find Bible verses in your Google Document and then turn them into links. The links will point to an online Bible of your choice.
 
+# Bible linker for Google Docs
+A Google Documents Apps Script and Add-on that searches for Bible verses and converts them to links. Choose from a selection of online Bible sources.
+
 ## How to use
 
 ### As an add-on
@@ -27,8 +30,8 @@ Coders are welcome to improve the script. It's open source. MIT license.
 * Find and fix bugs
 * ~~Support for other languages~~ Done in v2!
 * ~~Support for more online Bibles~~ Done in v2!
-* Check if Bible reference (chapter and verse) is valid
-* ~~Apply books exclusions in cases where some books are not available for the specific Bible version~~ Done in v2!
+* ~~Check if Bible reference (chapter and verse) is valid~~ Done in v2!
+* ~~Apply books exclusions, where some books are not available for a specific Bible version~~ Done in v2!
 * Add new languages by creating JSON files.  
 For samples of valid JSON files, see the [bible-data](bible-data) directory.  
 [Testing](https://www.google.com/search?q=json+validator) of new JSON files can be done via the menu **Extensions > Bible Linker > Choose language (data source) > Set custom data source ...**
