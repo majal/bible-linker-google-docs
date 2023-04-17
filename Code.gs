@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.5.0
+ *  v2.0.0-beta-1.5.1
  * 
  *********************************************************************************** */
 
@@ -89,7 +89,8 @@ function dynamicMenuGenerate() {
 
   let bibleDataSource, bibleVersions;
 
-  // Try-catch to check if PropertiesService is available, i.e. ScriptApp.AuthMode.NONE
+  // Try-catch to check if PropertiesService is available
+  // If ScriptApp.AuthMode is FULL
   try {
 
     const userProperties = PropertiesService.getUserProperties();
@@ -110,7 +111,7 @@ function dynamicMenuGenerate() {
       userProperties.setProperty('bibleVersions', bibleVersions);
     };
 
-  // If ScriptApp.AuthMode.NONE
+  // If ScriptApp.AuthMode is NONE or LIMITED
   } catch {
 
     bibleDataSource = BIBLE_DATA_SOURCES.default;
@@ -162,7 +163,7 @@ function createMenu() {
   let selectorUnselected = bibleData.strings.menu.selector.unselected;
   let lengthLimit        = bibleData.strings.menu.lengthLimit;
 
-  // Set main menu item
+  // Add Bible Linker to Docs menu
   var ui = DocumentApp.getUi();
   var menu = ui.createAddonMenu()
     .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion )
@@ -226,10 +227,10 @@ function createMenu() {
     
   };
 
-  // Add custom entry at the end of submenu
+  // Add submenu item to set custom data source
   menuChooseBibleDataSource
     .addSeparator()
-    .addItem(bibleData.strings.menu.customDataSource, 'chooseDataSourceCustom');
+    .addItem(bibleData.strings.menu.customDataSource, 'setCustomDataSource');
 
   // Get studyToolsDisplayName
   let studyToolsDisplayName = bibleData.html.studyTools.displayName;
@@ -270,6 +271,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
   var bibleVersions = [];
   for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
     if ( bvk == 'default' ) continue;
+    // Add key to end of array
     bibleVersions.splice(bibleVersions.length, 0, bvk);
   };
 
@@ -308,6 +310,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
   // Expand bookNames with spaces to RegEx whitespaces
   for (bookName of Object.values(bibleData.bookNames)) {
+    // Get initial length as it will change later with the additions (splice)
     let bookNameLengthInit = bookName.length;
     for ( let i=0; i < bookNameLengthInit; i++ ) {
       if ( bookName[i].includes(' ') ) {
@@ -321,7 +324,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
   // Get book numbers, process each
   for (bookNum of Object.keys(bibleData.bookNames)) {
 
-    // Convert string bookNum to integer
+    // If bookNum is string (which likely is...), convert to integer
     if ( typeof bookNum != 'number' ) bookNum = parseInt(bookNum, 10);
 
     // If bibleVersion has booksExclude, skip
@@ -371,7 +374,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
             
           } catch {
 
-            // Show text where search error occurred
+            // Show text where search error occurred, ask to submit error report
             searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
             ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
@@ -392,7 +395,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
         
         } catch {
 
-          // Show text where search error occurred
+          // Show text where search error occurred, ask to submit error report
           searchResultTextSlice = searchResult.getElement().asText().getText().slice(searchResult.getStartOffset(), searchResult.getEndOffsetInclusive() + 1);
           ui.alert(errorMsgParserTitle, errorMsgParserBefore + searchResultTextSlice + errorMsgParserAfter, ui.ButtonSet.OK);
 
@@ -450,7 +453,7 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
       // If comma split(s) occured ...
       if ( referenceSplits[i].length > 1 ) {
 
-        // Run for all split array values except the last one
+        // For rejoining consecutive verses: run for all split array values except the last one
         for ( let j=0; j < referenceSplits[i].length-1; j++ ) {
           
           // If verses separated by commas are consecutive, join together as one reference
@@ -461,8 +464,8 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
             referenceSplits[i].splice(j+1, 1);
           };
 
-          // Add back the removed comma(s) if next array exist, except the last array value
-          // Conditional IF added due to the splice above, moving the last array backward
+          // Add back the removed comma(s) if next array exist, except for the last array value
+          // Conditional IF added due to the splice above which pulled the last array value
           if (referenceSplits[i][j+1]) referenceSplits[i][j] += ',';
 
         };
@@ -494,10 +497,14 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
         // Get chapter End and Start
         let chapters = referenceSplits[i][0].match(/\d+:/g);
         if ( chapters.length == 1 ) {
+
           chapterStart = chapterEnd = parseInt(chapters[0].replace(':', ''), 10);
+
         } else {
+
           chapterStart = parseInt(chapters[0].replace(':', ''), 10);
           chapterEnd = parseInt(chapters[1].replace(':', ''), 10);
+
         };
 
       };
@@ -514,11 +521,15 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
         } else {
 
           if ( referenceSplits[i][j].includes(':') ) {
+
             verseStart = parseInt(referenceSplits[i][j].match(/:\d+/g)[0].replace(':', ''), 10);
+
           } else {
+
             let re1 = new RegExp('^' + ws + '\\d+', 'g');
             let re2 = new RegExp('^' + ws, 'g');
             verseStart = parseInt(referenceSplits[i][j].match(re1)[0].replace(re2, ''), 10);
+
           };
 
         };
@@ -527,8 +538,15 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
 
         // Determine referenceEnd, and linkable start and end
         referenceEnd = referenceStart + referenceSplits[i][j].length;
+
+        // referenceStart is set by the previous iteration of: while (searchResult != null)
+        // linkableStart is referenceStart with the first [0-9] in the referenceSplit
         let linkableStart = referenceStart + referenceSplits[i][j].search(/\d/);
+        
+        // If linking is from the beginning of the reference text
         if ( i == 0 && j == 0 ) linkableStart = referenceStart;
+        
+        // linkableEnd is referenceStart with the last [0-9] in the referenceSplit
         let linkableEnd = referenceStart + referenceSplits[i][j].search(/\d\D*$/);
         
         // Check if the book's chapters and verses are within valid values
@@ -538,10 +556,6 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
 
         if ( 0 < chapterEnd && chapterEnd <= chapterMax && 0 < verseStart && verseStart <= verseStartMax && 0 < verseEnd && verseEnd <= verseEndMax ) {
 
-          /////////////////////////////////////////////
-          // This is where the actual linking occurs //
-          /////////////////////////////////////////////
-
           // Only set links if:
           // (1) there is no selection (null)
           // (2) or full line is selected
@@ -550,11 +564,18 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
           || (searchElementStart == -1 && searchElementEnd == -1)
           || (searchResultStart >= searchElementStart && searchResultStart + referenceSplits[i][j].length <= searchElementEnd + 1) ) {
 
+            /////////////////////////////////////////////
+            // This is where the actual linking occurs //
+            /////////////////////////////////////////////
+
             let url = getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, verseEnd, chapterEnd);
+            
             searchResultAstext.setLinkUrl(linkableStart, linkableEnd, url);
           
           };
 
+        } else {
+          // Error message that reference is out of range?
         };
 
         // Set referenceStart for the next iteration
@@ -564,10 +585,10 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
 
     }; // END: Generate variables for the linker
 
-    // Find the next match
+    // Find the next searchResult in: while (searchResult != null)
     searchResult = searchElement.findText(searchRegex, searchResult);
     
-  }; // END: Cycle through each Bible reference found
+  }; // END: Cycle through each Bible reference found: while (searchResult != null)
 
 }; // END: function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElement, searchRegex, searchElementStart, searchElementEnd)
 
@@ -579,7 +600,7 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
   var bookNameAbbr2 = bibleData.bookNames[bookNum][1];
   var bookNameFull  = bibleData.bookNames[bookNum][2];
 
-  // Convert any integers to string
+  // Convert any integers to string, at times setting values
   bookNum = bookNum.toString();
   chapterStart = chapterStart.toString();
   verseStart = verseStart.toString();
@@ -590,7 +611,8 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
 
   // Format book numbers, chapters, and verses
   var targetLength, padString;
-  
+
+  // Pad bookNum as defined in data source
   if ( bibleData.bibleVersions[bibleVersion].padStart.bookNum ) {
 
     targetLength = bibleData.bibleVersions[bibleVersion].padStart.bookNum.targetLength;
@@ -600,6 +622,7 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
     
   };
   
+  // Pad chapters as defined in data source
   if ( bibleData.bibleVersions[bibleVersion].padStart.chapter ) {
     targetLength = bibleData.bibleVersions[bibleVersion].padStart.chapter.targetLength;
     padString = bibleData.bibleVersions[bibleVersion].padStart.chapter.padString;
@@ -608,6 +631,7 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
     chapterEnd = chapterEnd.padStart(targetLength, padString);
   };
   
+  // Pad verses as defined in data source
   if ( bibleData.bibleVersions[bibleVersion].padStart.verse ) {
     targetLength = bibleData.bibleVersions[bibleVersion].padStart.verse.targetLength;
     padString = bibleData.bibleVersions[bibleVersion].padStart.verse.padString;
@@ -616,7 +640,10 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
     verseEnd = verseEnd.padStart(targetLength, padString);
   };
 
+  // Get URL format for replacement
   let url = bibleData.bibleVersions[bibleVersion].urlFormat;
+
+  // Replace strings to format final URL
   url = url
     .replace(/<<bookNum>>/g, bookNum)
     .replace(/<<chapterStart>>/g, chapterStart)
@@ -627,7 +654,7 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
     .replace(/<<bookNameAbbr2>>/g, bookNameAbbr2)
     .replace(/<<bookNameFull>>/g, bookNameFull);
 
-  // Remove range if single verse scripture only
+  // Remove range in URL if single verse scripture only
   if ( chapterStart === chapterEnd && verseStart === verseEnd ) url = url.replace(/-[0-9]+$|-[0-9]+:[0-9]+:[0-9]+$/, '');
 
   return url;
@@ -660,7 +687,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
   // Define variables
   let bibleData, bibleDataJSON;
 
-  // If data source contains multiple URLs, isArray
+  // Check if data source contains multiple URLs (isArray)
   if ( Array.isArray(bibleDataSourceUrl) ) {
 
     // For each URL in array, exit once a proper JSON is found
@@ -685,6 +712,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
         try {
 
           bibleDataJSON = JSON.parse(bibleData.getContentText());
+
           return bibleDataJSON;
 
         // Continue with next URL in array if JSON is invalid
@@ -703,6 +731,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
 
       // Send alert to UI and return null
       ui.alert(title, messageBeforePlural + bibleDataSourceUrl.join('\n'), ui.ButtonSet.OK);
+
       return null;
 
     };
@@ -719,6 +748,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     } catch {
 
       ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+
       return null;
     
     };
@@ -727,17 +757,19 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     try {
 
       bibleDataJSON = JSON.parse(bibleData.getContentText());
+
       return bibleDataJSON;
     
     // If not a valid JSON, send alert to UI and return null
     } catch {
 
       ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+
       return null;
 
     };
   
-  };
+  }; // END: Check if data source contains multiple URLs (isArray)
 
 }; // END: getBibleData(bibleDataSourceUrl, bibleDataSource)
 
@@ -761,6 +793,7 @@ function getBibleDataCustom() {
     } else {
 
       userProperties.setProperty('bibleDataSource', BIBLE_DATA_SOURCES.default);
+
       userProperties.deleteProperty('customBibleData');
 
       createMenu();
@@ -809,7 +842,7 @@ function chooseDataSource(bibleDataSource) {
 };
 
 
-function chooseDataSourceCustom() {
+function setCustomDataSource() {
 
   // Get user's last used bibleDataSource
   const userProperties = PropertiesService.getUserProperties();
@@ -868,19 +901,20 @@ function chooseDataSourceCustom() {
             userProperties.setProperty('bibleDataSource', 'custom');
             userProperties.setProperty('customBibleData', JSON.stringify(customBibleDataJSON));
 
+            // Notify of successfully setting a new custom data source
             ui.alert(successTitle, successMsgBefore + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
             
             createMenu();            
             return;
           
           // Catch if userProperties.setProperty() returns an error
-          } catch(e) {
+          } catch(err) {
 
             // Notify about the error
-            ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
+            ui.alert(errorTitle, errorMessage + err + '\n\n' + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
 
             // Restart function
-            chooseDataSourceCustom();
+            setCustomDataSource();
             return;
           
           };
@@ -888,11 +922,8 @@ function chooseDataSourceCustom() {
         // If URL(s) in JSON is invalid
         } else {
 
-          // Notify about the error
-          // ui.alert(errorTitle, errorMessage + e + '\n\n' + JSON.stringify(customBibleDataJSON, null, '\u00a0\u00a0'), ui.ButtonSet.OK);
-
           // Restart function
-          chooseDataSourceCustom();
+          setCustomDataSource();
           return;
 
         }
@@ -908,6 +939,7 @@ function chooseDataSourceCustom() {
         userProperties.setProperty('bibleDataSource', 'custom');
         userProperties.setProperty('customBibleData', response.getResponseText());
 
+        // Notify of successfully setting a new custom data source
         ui.alert(successTitle, successMsgBefore + response.getResponseText(), ui.ButtonSet.OK);
 
         createMenu();
@@ -916,24 +948,22 @@ function chooseDataSourceCustom() {
       // If URL is invalid
       } else {
     
-        // Notify about the error
-        // ui.alert(errorTitle, errorMessage + response.getResponseText(), ui.ButtonSet.OK);
-
         // Restart function
-        chooseDataSourceCustom();
+        setCustomDataSource();
         return;
 
       };
 
     }; // END: Check if input is valid JSON
 
+  // If the user did not click the OK button
   } else {
     
     return;
 
   }; // END: If the user clicked the OK button
 
-}; // END: chooseDataSourceCustom()
+}; // END: setCustomDataSource()
 
 
 function studyTools() {
@@ -956,9 +986,11 @@ function studyTools() {
   
   // Fetch studyTools HTML content
   let htmlContent = UrlFetchApp.fetch(bibleData.html.studyTools.url);
+
+  // Convert to HTML output
   let htmlOutput = HtmlService.createHtmlOutput(htmlContent);
 
-  // Show studyTools
+  // Show studyTools to UI (this has some waiting from fetch)
   DocumentApp.getUi().showModalDialog(htmlOutput, bibleData.html.studyTools.windowLabel);
 
 };
@@ -971,6 +1003,7 @@ function activateAddon() {
   // Access Docs UI
   var ui = DocumentApp.getUi();
 
+  // Notify that the addon in now available for use, recommend to check the menu again
   ui.alert(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.activationTitle,
     BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.activationMsg,
     ui.ButtonSet.OK);  
@@ -993,6 +1026,7 @@ function onOpen(e) {
   // Access Docs UI
   var ui = DocumentApp.getUi();
   
+  // https://developers.google.com/apps-script/add-ons/concepts/editor-auth-lifecycle
   // If AuthMode not FULL, create temporary menu
   if (e && e.authMode != ScriptApp.AuthMode.FULL) {
 
@@ -1001,8 +1035,7 @@ function onOpen(e) {
       .addItem(BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].strings.activate.activationItem, 'activateAddon')
       .addToUi();
 
-  // If ScriptApp.AuthMode is FULL, activated when passed from onInstall(e)
-  // https://developers.google.com/apps-script/add-ons/concepts/editor-auth-lifecycle
+  // If ScriptApp.AuthMode is FULL; happens when passed from onInstall(e)
   } else {
 
     createMenu();
