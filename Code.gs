@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.3.0
+ *  v2.0.0-beta-1.4.0
  * 
  *********************************************************************************** */
 
@@ -101,6 +101,13 @@ function dynamicMenuGenerate() {
       bibleVersions = JSON.parse(bibleVersions);
     } catch {
       bibleVersions = BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].bibleVersions;
+      userProperties.setProperty('bibleVersions', bibleVersions);
+    };
+
+    // Error mitigation in case bibleVersions is falsy
+    if ( ! bibleVersions ) {
+      bibleVersions = BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].bibleVersions;
+      userProperties.setProperty('bibleVersions', bibleVersions);
     };
 
   // If ScriptApp.AuthMode.NONE
@@ -285,7 +292,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
   var bookSingleChapters = bibleData.bookSingleChapters;
 
   // Get search RegExes
-  var searchRegexMultiChapters = bibleData.regEx.search.multiChapters;
+  var searchRegexMultiChapters  = bibleData.regEx.search.multiChapters;
   var searchRegexSingleChapters = bibleData.regEx.search.singleChapters;
 
   // Get whitespace RegEx, set to default if null
@@ -313,6 +320,13 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
   // Get book numbers, process each
   for (bookNum of Object.keys(bibleData.bookNames)) {
+
+    // Convert string bookNum to integer
+    if ( typeof bookNum != 'number' ) bookNum = parseInt(bookNum, 10);
+
+    // If bibleVersion has booksExclude, skip
+    let booksExclude = bibleData.bibleVersions[bibleVersion].booksExclude;
+    if ( booksExclude && booksExclude.includes(bookNum) ) continue;
 
     // Get book names, process each
     for (bookName of Object.values(bibleData.bookNames[bookNum])) {
@@ -469,23 +483,44 @@ function bibleParse(bibleData, bibleVersion, bookNum, searchResult, searchElemen
     // Get chapters in each referenceSplits
     for ( let i=0; i < referenceSplits.length; i++ ) {
       
-      let chapters = referenceSplits[i][0].match(/\d+:/g);
-      if ( chapters.length == 1 ) {
-        chapterStart = chapterEnd = parseInt(chapters[0].replace(':', ''), 10);
+      // Chapter is always 1 for single-chapter Bible books
+      if ( bookSingleChapters.includes(bookNum) ) {
+
+        chapterStart = chapterEnd = 1;
+
+      // For multi-chapter books, which is the usual case
       } else {
-        chapterStart = parseInt(chapters[0].replace(':', ''), 10);
-        chapterEnd = parseInt(chapters[1].replace(':', ''), 10);
+
+        // Get chapter End and Start
+        let chapters = referenceSplits[i][0].match(/\d+:/g);
+        if ( chapters.length == 1 ) {
+          chapterStart = chapterEnd = parseInt(chapters[0].replace(':', ''), 10);
+        } else {
+          chapterStart = parseInt(chapters[0].replace(':', ''), 10);
+          chapterEnd = parseInt(chapters[1].replace(':', ''), 10);
+        };
+
       };
 
       // Get verses in each referenceSplits
       for ( let j=0; j < referenceSplits[i].length; j++ ) {
 
-        if ( referenceSplits[i][j].includes(':') ) {
-          verseStart = parseInt(referenceSplits[i][j].match(/:\d+/g)[0].replace(':', ''), 10);
+        // For single-chapter Bible books
+        if ( bookSingleChapters.includes(bookNum) ) {
+
+          verseStart = parseInt(referenceSplits[i][j].match(/^\D*\d+/g)[0].replace(/^\D*/g, ''), 10);
+
+        // For multi-chapter Bible books
         } else {
-          let re1 = new RegExp('^' + ws + '\\d+', 'g');
-          let re2 = new RegExp('^' + ws, 'g');
-          verseStart = parseInt(referenceSplits[i][j].match(re1)[0].replace(re2, ''), 10);
+
+          if ( referenceSplits[i][j].includes(':') ) {
+            verseStart = parseInt(referenceSplits[i][j].match(/:\d+/g)[0].replace(':', ''), 10);
+          } else {
+            let re1 = new RegExp('^' + ws + '\\d+', 'g');
+            let re2 = new RegExp('^' + ws, 'g');
+            verseStart = parseInt(referenceSplits[i][j].match(re1)[0].replace(re2, ''), 10);
+          };
+
         };
 
         verseEnd = parseInt(referenceSplits[i][j].match(/\d+[,;]*$/g)[0].replace(/[,;]$/g, ''), 10);
@@ -548,10 +583,12 @@ function getUrl(bibleData, bibleVersion, bookNum, chapterStart, verseStart, vers
   var targetLength, padString;
   
   if ( bibleData.bibleVersions[bibleVersion].padStart.bookNum ) {
+
     targetLength = bibleData.bibleVersions[bibleVersion].padStart.bookNum.targetLength;
     padString = bibleData.bibleVersions[bibleVersion].padStart.bookNum.padString;
 
     bookNum = bookNum.padStart(targetLength, padString);
+    
   };
   
   if ( bibleData.bibleVersions[bibleVersion].padStart.chapter ) {
