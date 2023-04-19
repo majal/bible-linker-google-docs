@@ -26,8 +26,8 @@ Coders are welcome to improve the script. It's open source. MIT license.
 * ~~Check if Bible reference (chapter and verse) is valid~~ Done in v2!
 * ~~Apply books exclusions, where some books are not available for a specific Bible version~~ Done in v2!
 * Add new languages by creating JSON files.  
-For samples of valid JSON files, see the [bible-data](bible-data) directory.  
-[Testing](https://www.google.com/search?q=json+validator) of new JSON files can be done via the menu **Extensions > Bible Linker > Choose language (data source) > Set custom data source ...**
+For samples of [valid JSON](https://www.google.com/search?q=json+validator) files, see the [bible-data](bible-data) directory.  
+Testing of new JSON files can be done via the menu **Extensions > Bible Linker > Choose language (data source) > Set custom data source ...**
 
 ## Other copyrights
 The Bibles and languages initially supported came from [versions listed in jw.org](https://www.jw.org/en/library/bible/) and [Watchtower Online Library](https://wol.jw.org/en/wol/binav/r1/lp-e). The [Terms of Use](https://www.jw.org/finder?prefer=content&wtlocale=E&docid=1011511) of these websites do not allow the sharing of their contents. However, it allows [linking to these websites](https://www.jw.org/finder?prefer=content&wtlocale=E&docid=1011511&par=21-23), which is what this script does.
