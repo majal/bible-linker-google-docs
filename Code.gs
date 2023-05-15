@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.5.1
+ *  v2.0.0-beta-1.5.2
  * 
  *********************************************************************************** */
 
@@ -1016,7 +1016,21 @@ function activateAddon() {
 
 function onInstall(e) {
 
-  onOpen(e);
+  try {
+    
+    // Reset UserProperties after recent install in case errors were introduced in previous use
+    const userProperties = PropertiesService.getUserProperties();
+    userProperties.deleteAllProperties();
+  
+  } catch(err) {
+
+    Logger.log('Install error: ' + err);
+
+  } finally {
+  
+    onOpen(e);
+  
+  };
 
 };
 
