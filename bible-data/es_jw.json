@@ -160,7 +160,7 @@
     },
     "es_jw_nwt_wol": {
       "displayName": "Traducción del Nuevo Mundo (WOL)",
-      "urlFormat": "https://wol.jw.org/es/wol/b/r1/lp-e/nwt/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "urlFormat": "https://wol.jw.org/es/wol/b/r1/lp-s/nwt/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
       "padStart": {
         "bookNum": {
           "targetLength": 0,
