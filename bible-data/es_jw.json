@@ -6,7 +6,7 @@
     "id": "es_jw",
     "displayName": "Español (JW.org)",
     "url": [
-      "https://github.com/majal/bible-linker-google-docs/raw/main/bible-data/es_jw.json",
+      "https://github.com/SanSon97/bible-linker-google-docs/blob/main/bible-data/es_jw.json",
       "https://pastebin.com/raw/0W8738GK"
     ],
     "strings": {
@@ -140,7 +140,7 @@
   },
   "bibleVersions": {
     "default": "es_jw_nwtsty_wol",
-    "en_jw_nwt": {
+    "es_jw_tnm": {
       "displayName": "Traducción del Nuevo Mundo",
       "urlFormat": "https://www.jw.org/finder?wtlocale=S&pub=nwt&bible=<<bookNum>><<chapterStart>><<verseStart>>-<<bookNum>><<chapterEnd>><<verseEnd>>",
       "padStart": {
@@ -158,7 +158,7 @@
         }
       }
     },
-    "en_jw_nwt_wol": {
+    "es_jw_nwt_wol": {
       "displayName": "Traducción del Nuevo Mundo (WOL)",
       "urlFormat": "https://wol.jw.org/es/wol/b/r1/lp-e/nwt/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
       "padStart": {
