@@ -248,7 +248,13 @@
         }
       }
     }
-
+ },
+  "regEx": {
+    "search": {
+      "multiChapters": "[0-9]+:[0-9 \u00a0,;:-]*[0-9]",
+      "singleChapters": "[0-9 \u00a0,-]*[0-9]"
+    },
+    "whitespace": "[\u0020\u00a0]"
   },
   "bibleChapterVerseCount": {
     "1": {
