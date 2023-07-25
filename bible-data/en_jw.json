@@ -15,7 +15,9 @@
         "downloadJSON": {
           "title": "Failed to get data source",
           "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
-          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+          "messageAfterSingular": "\n\nIs the link accessible? Has the JSON been linted for errors?",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n",
+          "messageAfterPlural": "\n\nAre the link accessible? Has the JSON files been linted for errors?"
         }
       }
     }
