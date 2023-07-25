@@ -11,7 +11,7 @@
     ],
     "strings": {
       "errors": {
-        "nullBibleData": "No Bible data available",
+        "nullBibleData": "No Bible data available. Bible Linker will reset all settings to default.",
         "downloadJSON": {
           "title": "Failed to get data source",
           "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
