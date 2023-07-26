@@ -160,7 +160,7 @@
     },
     "es_jw_nwt_wol": {
       "displayName": "Traducción del Nuevo Mundo (WOL)",
-      "urlFormat": "https://wol.jw.org/es/wol/b/r1/lp-s/nwt/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "urlFormat": "https://wol.jw.org/es/wol/b/r4/lp-s/nwt/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
       "padStart": {
         "bookNum": {
           "targetLength": 0,
@@ -196,7 +196,7 @@
     },
     "es_jw_nwtsty_wol": {
       "displayName": "Traducción del Nuevo Mundo (Edición de Estudio) (WOL)",
-      "urlFormat": "https://wol.jw.org/es/wol/b/r1/lp-s/nwtsty/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "urlFormat": "https://wol.jw.org/es/wol/b/r4/lp-s/nwtsty/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
       "padStart": {
         "bookNum": {
           "targetLength": 0,
@@ -232,7 +232,7 @@
     },
     "es_jw_nwtrbi8_wol": {
       "displayName": "Traducción del Nuevo Mundo (Biblia con Referencias, 1984) (WOL)",
-      "urlFormat": "https://wol.jw.org/es/wol/b/r1/lp-s/Rbi8/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
+      "urlFormat": "https://wol.jw.org/es/wol/b/r4/lp-s/Rbi8/<<bookNum>>/<<chapterStart>>#s=<<verseStart>>&study=discover&v=<<bookNum>>:<<chapterStart>>:<<verseStart>>-<<bookNum>>:<<chapterEnd>>:<<verseEnd>>",
       "padStart": {
         "bookNum": {
           "targetLength": 0,
