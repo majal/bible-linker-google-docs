@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.5.2
+ *  v2.0.0-beta-1.6.0
  * 
  *********************************************************************************** */
 
@@ -49,11 +49,16 @@ const BIBLE_DATA_SOURCES = {
         "activationMsg": "You may now use Bible Linker. Please navigate again to the menu to use it."
       },
       "errors": {
-        "nullBibleData": "No Bible data available",
+        "nullBibleData": {
+          "title": "Bible data is no longer available",
+          "message": "Bible Linker will run using the default Bible data instead."
+        },
         "downloadJSON": {
           "title": "Failed to get data source",
           "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
-          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+          "messageAfterSingular": "\n\nIs the link accessible? Has the JSON been linted for errors?",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n",
+          "messageAfterPlural": "\n\nAre the link accessible? Has the JSON files been linted for errors?"
         }
       }
     }
@@ -68,11 +73,16 @@ const BIBLE_DATA_SOURCES = {
         "activationMsg": "You may now use Bible Linker. Please navigate again to the menu to use it."
       },
       "errors": {
-        "nullBibleData": "No custom data available",
+        "nullBibleData": {
+          "title": "Custom Bible data is no longer available",
+          "message": "Bible Linker will run using the default Bible data instead."
+        },
         "downloadJSON": {
           "title": "Failed to get data source",
           "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
-          "messageBeforePlural": "There were problems fetching the following data sources:\n\n"
+          "messageAfterSingular": "\n\nIs the link accessible? Has the JSON been linted for errors?",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n",
+          "messageAfterPlural": "\n\nAre the link accessible? Has the JSON files been linted for errors?"
         }
       }
     }
@@ -134,6 +144,9 @@ function dynamicMenuGenerate() {
 
 }; // END: dynamicMenuGenerate()
 
+//////////
+// Main //
+//////////
 
 function createMenu() {
 
@@ -150,9 +163,21 @@ function createMenu() {
     bibleDataSource = BIBLE_DATA_SOURCES.default;
   };
 
-  // Fetch bibleData from external source, throw error if bibleData is null
+  // Fetch bibleData from external source, if bibleData is null reset to default
   let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
-  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  // Check if bibleData is still valid
+  if ( ! bibleData ) {
+
+    ui.alert(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.title, BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.message, ui.ButtonSet.OK);
+    
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+    bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+
+  };
 
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
@@ -164,7 +189,6 @@ function createMenu() {
   let lengthLimit        = bibleData.strings.menu.lengthLimit;
 
   // Add Bible Linker to Docs menu
-  var ui = DocumentApp.getUi();
   var menu = ui.createAddonMenu()
     .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion )
     .addSeparator();
@@ -262,7 +286,19 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
   // Fetch bibleData from external source, throw error if bibleData is null
   let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
-  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();  
+  
+  // Check if bibleData is still valid
+  if ( ! bibleData ) {
+
+    ui.alert(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.title, BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.message, ui.ButtonSet.OK);
+    
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+    bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+
+  };
 
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
@@ -283,9 +319,6 @@ function bibleLinker(bibleDataSource, bibleVersion) {
 
   // Initialize Google Document
   var doc = DocumentApp.getActiveDocument();
-
-  // Access Docs UI
-  var ui = DocumentApp.getUi();
 
   // Note if document has active selection
   var docSelection = doc.getSelection();
@@ -679,7 +712,9 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
   // Get error messages
   let title                 = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.title;
   let messageBeforeSingular = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforeSingular;
+  let messageAfterSingular = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageAfterSingular;
   let messageBeforePlural   = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageBeforePlural;
+  let messageAfterPlural   = BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.downloadJSON.messageAfterPlural;
 
   // Access Docs UI
   var ui = DocumentApp.getUi();
@@ -730,7 +765,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     if ( ! bibleDataJSON ) {
 
       // Send alert to UI and return null
-      ui.alert(title, messageBeforePlural + bibleDataSourceUrl.join('\n'), ui.ButtonSet.OK);
+      ui.alert(title, messageBeforePlural + bibleDataSourceUrl.join('\n') + messageAfterPlural, ui.ButtonSet.OK);
 
       return null;
 
@@ -747,7 +782,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     // If URL invalid, send alert to UI and return null
     } catch {
 
-      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl + messageAfterSingular, ui.ButtonSet.OK);
 
       return null;
     
@@ -763,7 +798,7 @@ function getBibleData(bibleDataSourceUrl, bibleDataSource) {
     // If not a valid JSON, send alert to UI and return null
     } catch {
 
-      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl, ui.ButtonSet.OK);
+      ui.alert(title, messageBeforeSingular + bibleDataSourceUrl + messageAfterSingular, ui.ButtonSet.OK);
 
       return null;
 
@@ -793,9 +828,7 @@ function getBibleDataCustom() {
     } else {
 
       userProperties.setProperty('bibleDataSource', BIBLE_DATA_SOURCES.default);
-
       userProperties.deleteProperty('customBibleData');
-
       createMenu();
     
     };
@@ -822,7 +855,19 @@ function chooseDataSource(bibleDataSource) {
 
   // Fetch bibleData from external source, throw error if bibleData is null
   let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
-  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+  
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+  
+  // Check if bibleData is still valid
+  if ( ! bibleData ) {
+
+    ui.alert(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.title, BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.message, ui.ButtonSet.OK);
+    
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+    bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+
+  };
 
   let updateTitle         = bibleData.strings.bibleDataSource.update.title;
   let updateMessageBefore = bibleData.strings.bibleDataSource.update.messageBefore;
@@ -836,7 +881,6 @@ function chooseDataSource(bibleDataSource) {
   createMenu();
 
   // Inform user of change of data source
-  var ui = DocumentApp.getUi();
   ui.alert(updateTitle, updateMessageBefore + BIBLE_DATA_SOURCES[bibleDataSource].displayName + updateMessageAfter, ui.ButtonSet.OK);
 
 };
@@ -858,7 +902,19 @@ function setCustomDataSource() {
 
   // Fetch bibleData from external source, throw error if bibleData is null
   let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
-  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+  
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  // Check if bibleData is still valid
+  if ( ! bibleData ) {
+
+    ui.alert(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.title, BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.message, ui.ButtonSet.OK);
+    
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+    bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+
+  };
 
   // Get strings
   let inputTitle     = bibleData.strings.customDataSource.input.title;
@@ -868,9 +924,6 @@ function setCustomDataSource() {
   let errorMessage   = bibleData.strings.customDataSource.error.message;
   let successTitle     = bibleData.strings.customDataSource.success.title;
   let successMsgBefore = bibleData.strings.customDataSource.success.messageBefore;
-
-  // Access Docs UI
-  var ui = DocumentApp.getUi();
 
   // Initialize variables
   let customBibleDataJSON;
@@ -982,7 +1035,19 @@ function studyTools() {
 
   // Fetch bibleData from external source, throw error if bibleData is null
   let bibleData = bibleDataSource == 'custom' ? getBibleDataCustom() : getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
-  if ( ! bibleData ) throw new Error(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData);
+
+  // Access Docs UI
+  var ui = DocumentApp.getUi();
+
+  // Check if bibleData is still valid
+  if ( ! bibleData ) {
+
+    ui.alert(BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.title, BIBLE_DATA_SOURCES[bibleDataSource].strings.errors.nullBibleData.message, ui.ButtonSet.OK);
+    
+    bibleDataSource = BIBLE_DATA_SOURCES.default;
+    bibleData = getBibleData(BIBLE_DATA_SOURCES[bibleDataSource].url, bibleDataSource);
+
+  };
   
   // Fetch studyTools HTML content
   let htmlContent = UrlFetchApp.fetch(bibleData.html.studyTools.url);
@@ -991,7 +1056,7 @@ function studyTools() {
   let htmlOutput = HtmlService.createHtmlOutput(htmlContent);
 
   // Show studyTools to UI (this has some waiting from fetch)
-  DocumentApp.getUi().showModalDialog(htmlOutput, bibleData.html.studyTools.windowLabel);
+  ui.showModalDialog(htmlOutput, bibleData.html.studyTools.windowLabel);
 
 };
 
@@ -1009,6 +1074,7 @@ function activateAddon() {
     ui.ButtonSet.OK);  
 
 };
+
 
 //////////////////////
 // Helper functions //
