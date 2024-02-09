@@ -20,7 +20,7 @@ const BIBLE_DATA_SOURCES = {
   "en_jw": {
     "displayName": "English (JW.org)",
     "url": [
-      "https://github.com/majal/bible-linker-google-docs/raw/main/bible-data/en_jw.json",
+      "https://raw.githubusercontent.com/majal/bible-linker-google-docs/main/bible-data/en_jw.json",
       "https://pastebin.com/raw/0W8738GK"
     ],
     "bibleVersions": [
