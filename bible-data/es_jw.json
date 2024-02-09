@@ -26,7 +26,7 @@
       "title": "Bible Linker",
       "doLink": "🔗\u00a0\u00a0Enlace los versículo usando",
       "chooseBibleVersion": "📖\u00a0\u00a0Escoja la versión de la Biblia",
-      "chooseDataSource": "🌐\u00a0\u00a0Escoja el Idioma (orígen de Datos",
+      "chooseDataSource": "🌐\u00a0\u00a0Escoja el Idioma (orígen de Datos)",
       "selector": {
         "selected": "▸\u00a0\u00a0",
         "unselected": "\u00a0\u00a0\u00a0\u00a0"
