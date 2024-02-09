@@ -1,0 +1,42 @@
+<style>
+  html {font-family: "Open Sans", Arial, sans-serif;}
+
+  li {padding: 0 0 20px 0;}
+
+  .button {
+    background-color: #326B8C;
+    border: 2px solid #326B8C;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #FFF;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 30px auto 10px auto;
+    padding: 12px 24px;
+    display:block;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+
+  .button:hover {
+    box-shadow: 0 6px 16px 0 rgba(0,0,0,0.24), 0 9px 50px 0 rgba(0,0,0,0.19);
+  }
+
+  .button:active {
+    box-shadow: 0 2px 50px 0 rgba(0,0,0,0.24), 0 5px 10px 0 rgba(0,0,0,0.19);
+    transform: translateY(4px);
+  }
+</style>
+
+<base target="_blank">
+
+<p>Herramientas para ayudarle a obtener una comprensión más profunda de la Biblia:</p>
+
+<ul>
+  <li><strong><a href="https://wol.jw.org/es">Biblioteca en Línea Watchtower</a> (WOL)</strong> - Una herramienta de investigación para encontrar artículos explicativos sobre versículos y temas bíblicos.</li>
+  <li><strong><a href="https://www.jw.org/es/ayuda-en-l%C3%ADnea/jw-library/">JW Library</a></strong> - Una Biblioteca Bíblica en su bolsillo.</li>
+  <li><strong><a href="https://www.jw.org/finder?docid=1011539">Herramientas de Estudio</a></strong> on <a href="https://www.jw.org/es">jw.org</a>.</li>
+</ul>
+
+<input class="button" type="button" value="Got it!" onClick="google.script.host.close()" />
