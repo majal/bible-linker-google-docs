@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-1.6.0
+ *  v2.0.0-beta-2.0.0
  * 
  *********************************************************************************** */
 
@@ -828,6 +828,7 @@ function getBibleDataCustom() {
     } else {
 
       userProperties.setProperty('bibleDataSource', BIBLE_DATA_SOURCES.default);
+      userProperties.setProperty('bibleVersions', BIBLE_DATA_SOURCES[BIBLE_DATA_SOURCES.default].bibleVersions);
       userProperties.deleteProperty('customBibleData');
       createMenu();
     
@@ -873,9 +874,18 @@ function chooseDataSource(bibleDataSource) {
   let updateMessageBefore = bibleData.strings.bibleDataSource.update.messageBefore;
   let updateMessageAfter  = bibleData.strings.bibleDataSource.update.messageAfter;
 
+  // Load bibleVersions into array, except 'default'
+  var bibleVersions = [];
+  for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+    if ( bvk == 'default' ) continue;
+    // Add key to end of array
+    bibleVersions.splice(bibleVersions.length, 0, bvk);
+  };
+
   // Set bibleDataSource to user preferences
   const userProperties = PropertiesService.getUserProperties();
   userProperties.setProperty('bibleDataSource', bibleDataSource);
+  userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
 
   // Recreate menu
   createMenu();
@@ -945,13 +955,24 @@ function setCustomDataSource() {
       // If JSON is valid ...
       if ( customBibleDataJSON ) {
 
+        bibleData = getBibleData(customBibleDataJSON.url, bibleDataSource);
+
         // Check if URL(s) point to valid JSON
-        if ( getBibleData(customBibleDataJSON.url, bibleDataSource) ) {
+        if ( bibleData ) {
 
           // Upload to userProperties
           try {
 
+            // Load bibleVersions into array, except 'default'
+            var bibleVersions = [];
+            for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+              if ( bvk == 'default' ) continue;
+              // Add key to end of array
+              bibleVersions.splice(bibleVersions.length, 0, bvk);
+            };
+
             userProperties.setProperty('bibleDataSource', 'custom');
+            userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
             userProperties.setProperty('customBibleData', JSON.stringify(customBibleDataJSON));
 
             // Notify of successfully setting a new custom data source
@@ -986,10 +1007,21 @@ function setCustomDataSource() {
     // If not valid JSON, try if it is a URL pointing to a valid JSON
     } catch {
 
+      bibleData = getBibleData(response.getResponseText(), bibleDataSource);
+
       // If URL is valid, upload URL to userProperties
-      if ( getBibleData(response.getResponseText(), bibleDataSource) ) {
+      if ( bibleData ) {
+
+        // Load bibleVersions into array, except 'default'
+        var bibleVersions = [];
+        for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+          if ( bvk == 'default' ) continue;
+          // Add key to end of array
+          bibleVersions.splice(bibleVersions.length, 0, bvk);
+        };
 
         userProperties.setProperty('bibleDataSource', 'custom');
+        userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
         userProperties.setProperty('customBibleData', response.getResponseText());
 
         // Notify of successfully setting a new custom data source
