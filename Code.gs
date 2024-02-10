@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-2.0.0
+ *  v2.0.0-beta-2.0.1
  * 
  *********************************************************************************** */
 
@@ -187,6 +187,7 @@ function createMenu() {
   let selectorSelected   = bibleData.strings.menu.selector.selected;
   let selectorUnselected = bibleData.strings.menu.selector.unselected;
   let lengthLimit        = bibleData.strings.menu.lengthLimit;
+  let customLabel        = bibleData.strings.menu.customLabel;
 
   // Add Bible Linker to Docs menu
   var menu = ui.createAddonMenu()
@@ -233,7 +234,7 @@ function createMenu() {
       let customBibleData = userProperties.getProperty('customBibleData');
       if ( ! customBibleData ) continue;
 
-      bibleDataSourceDisplayName = 'Custom: ' + customBibleData;
+      bibleDataSourceDisplayName = customLabel + customBibleData;
 
     };
 
