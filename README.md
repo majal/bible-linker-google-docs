@@ -1,4 +1,4 @@
-# Bible linker for Google Docs
+# Bible Linker for Google Docs
 A Google Documents Apps Script and Add-on that searches for Bible verses and converts them to links. Choose from a selection of online Bible sources.
 
 ## How to use
