@@ -7,7 +7,7 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-2.0.1
+ *  v2.0.0-beta-2.0.2
  * 
  *********************************************************************************** */
 
@@ -270,7 +270,7 @@ function createMenu() {
       let customBibleData = userProperties.getProperty('customBibleData');
       if ( ! customBibleData ) continue;
 
-      bibleDataSourceDisplayName = customLabel + customBibleData;
+      bibleDataSourceDisplayName = customLabel ? customLabel + customBibleData : customBibleData;
 
     };
 
