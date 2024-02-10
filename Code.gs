@@ -63,6 +63,42 @@ const BIBLE_DATA_SOURCES = {
       }
     }
   },
+  "es_jw": {
+    "displayName": "Español (JW.org)",
+    "url": [
+      "https://raw.githubusercontent.com/majal/bible-linker-google-docs/main/bible-data/es_jw.json",
+      "https://pastebin.com/raw/3GjkEhdB"
+    ],
+    "bibleVersions": [
+      "es_jw_nwt",
+      "es_jw_nwt_wol",
+      "es_jw_nwtsty",
+      "es_jw_nwtsty_wol",
+      "es_jw_nwtrbi8",
+      "es_jw_nwtrbi8_wol"
+    ],
+    "strings": {
+      "activate": {
+        "appTitle": "Bible Linker",
+        "activationItem": "Activate Bible Linker",
+        "activationTitle": "Bible Linker Enabled",
+        "activationMsg": "You may now use Bible Linker. Please navigate again to the menu to use it."
+      },
+      "errors": {
+        "nullBibleData": {
+          "title": "Bible data is no longer available",
+          "message": "Bible Linker will run using the default Bible data instead."
+        },
+        "downloadJSON": {
+          "title": "Failed to get data source",
+          "messageBeforeSingular": "There was a problem fetching the following data source:\n\n",
+          "messageAfterSingular": "\n\nIs the link accessible? Has the JSON been linted for errors?",
+          "messageBeforePlural": "There were problems fetching the following data sources:\n\n",
+          "messageAfterPlural": "\n\nAre the link accessible? Has the JSON files been linted for errors?"
+        }
+      }
+    }
+  },
   "custom": {
     "displayName": "Custom data source",
     "strings": {

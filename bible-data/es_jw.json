@@ -6,7 +6,8 @@
     "id": "es_jw",
     "displayName": "Español (JW.org)",
     "url": [
-      "https://raw.githubusercontent.com/majal/bible-linker-google-docs/main/bible-data/es_jw.json"
+      "https://raw.githubusercontent.com/majal/bible-linker-google-docs/main/bible-data/es_jw.json",
+      "https://pastebin.com/raw/3GjkEhdB"
     ],
     "strings": {
       "errors": {
