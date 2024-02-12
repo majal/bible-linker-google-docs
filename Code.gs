@@ -166,8 +166,8 @@ function dynamicMenuGenerate() {
   };
 
   // Debugging
-  Logger.log('dynamicMenuGenerate().bibleDataSource: ' + bibleDataSource);
-  Logger.log('dynamicMenuGenerate().bibleVersions: ' + bibleVersions);
+  // Logger.log('dynamicMenuGenerate().bibleDataSource: ' + bibleDataSource);
+  // Logger.log('dynamicMenuGenerate().bibleVersions: ' + bibleVersions);
 
   // Generate bibleVersion function names for the dynamic menu
   for ( let i = 0; i < bibleVersions.length; i++ ) {
