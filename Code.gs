@@ -165,6 +165,10 @@ function dynamicMenuGenerate() {
 
   };
 
+  // Debugging
+  Logger.log('dynamicMenuGenerate().bibleDataSource: ' + bibleDataSource);
+  Logger.log('dynamicMenuGenerate().bibleVersions: ' + bibleVersions);
+
   // Generate bibleVersion function names for the dynamic menu
   for ( let i = 0; i < bibleVersions.length; i++ ) {
     var dynamicMenuBibleVersion = 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersions[i];
@@ -218,6 +222,18 @@ function createMenu() {
   // Set bibleVersion to default if not found in Bible data
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
 
+  // Load bibleVersions into array, except 'default'
+  let bibleVersions = [];
+  for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
+    if ( bvk == 'default' ) continue;
+    // Add key to end of array
+    bibleVersions.splice(bibleVersions.length, 0, bvk);
+  };
+
+  // Re-run dynamicMenuGenerate() before setting menu entries, In case bibleDataSource changed
+  userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
+  dynamicMenuGenerate();
+
   // Get needed strings and values
   let displayName        = bibleData.bibleVersions[bibleVersion].displayName;
   let selectorSelected   = bibleData.strings.menu.selector.selected;
@@ -226,12 +242,11 @@ function createMenu() {
   let customLabel        = bibleData.strings.menu.customLabel;
 
   // Add Bible Linker to Docs menu
-  var menu = ui.createAddonMenu()
-    .addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion )
-    .addSeparator();
+  let menu = ui.createAddonMenu().addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion ).addSeparator();
+  // let menu = ui.createMenu('Test: Bible Linker').addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion ).addSeparator(); // For testing
 
   // Set bibleVersions submenu
-  var menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
+  let menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
 
   // Load dynamic values to bibleVersions submenu
   for ( let bibleVersionDynamic of Object.keys(bibleData.bibleVersions) ) {
@@ -341,7 +356,7 @@ function bibleLinker(bibleDataSource, bibleVersion) {
   if ( ! Object.keys(bibleData.bibleVersions).includes(bibleVersion) ) bibleVersion = bibleData.bibleVersions.default;
 
   // Load bibleVersions into array, except 'default'
-  var bibleVersions = [];
+  let bibleVersions = [];
   for ( let bvk of Object.keys(bibleData.bibleVersions) ) {
     if ( bvk == 'default' ) continue;
     // Add key to end of array
