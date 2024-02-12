@@ -230,7 +230,7 @@ function createMenu() {
     bibleVersions.splice(bibleVersions.length, 0, bvk);
   };
 
-  // Re-run dynamicMenuGenerate() before setting menu entries, In case bibleDataSource changed
+  // Re-run dynamicMenuGenerate() before setting menu entries, in case bibleDataSource changed
   userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
   dynamicMenuGenerate();
 
