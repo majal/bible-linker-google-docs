@@ -7,13 +7,15 @@
  *
  *  For more information, visit: https://github.com/majal/bible-linker-google-docs
  *
- *  v2.0.0-beta-2.0.2
+ *  v2.0.0-beta-2.0.3
  * 
  *********************************************************************************** */
 
 ////////////////////////////////////////////////////////////
 // Global variables and function, needed for dynamic menu //
 ////////////////////////////////////////////////////////////
+
+var testing = false;
 
 const BIBLE_DATA_SOURCES = {
   "default": "en_jw",
@@ -125,6 +127,10 @@ const BIBLE_DATA_SOURCES = {
   }
 };
 
+const dynamicFunctionVersion = 'dfv_';
+const dynamicFunctionSource  = 'dfs_';
+var dynamicMenuGenerateDone = false;
+
 //////////////////
 // Dynamic menu //
 //////////////////
@@ -132,6 +138,8 @@ const BIBLE_DATA_SOURCES = {
 dynamicMenuGenerate();
 
 function dynamicMenuGenerate() {
+
+  dynamicMenuGenerateDone = false;
 
   let bibleDataSource, bibleVersions;
 
@@ -171,16 +179,18 @@ function dynamicMenuGenerate() {
 
   // Generate bibleVersion function names for the dynamic menu
   for ( let i = 0; i < bibleVersions.length; i++ ) {
-    var dynamicMenuBibleVersion = 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersions[i];
+    var dynamicMenuBibleVersion = dynamicFunctionVersion + bibleDataSource + '_' + bibleVersions[i];
     this[dynamicMenuBibleVersion] = function() { bibleLinker(bibleDataSource, bibleVersions[i]); };
   };
 
   // Generate bibleDataSource function names for the dynamic menu
   for ( let dsk of Object.keys(BIBLE_DATA_SOURCES) ) {
     if ( dsk == 'default' ) continue;
-    var dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + dsk;
+    var dynamicMenuBibleDataSource = dynamicFunctionSource + dsk;
     this[dynamicMenuBibleDataSource] = function() { chooseDataSource(dsk); };
   };
+
+  dynamicMenuGenerateDone = true;
 
 }; // END: dynamicMenuGenerate()
 
@@ -190,9 +200,13 @@ function dynamicMenuGenerate() {
 
 function createMenu() {
 
+  // Wait for dynamicMenuGenerate() to complete
+  while ( ! dynamicMenuGenerateDone ) Utilities.sleep(5);
+
   // Get user's last used bibleDataSource and bibleVersion
   const userProperties = PropertiesService.getUserProperties();
   let bibleDataSource = userProperties.getProperty('bibleDataSource');
+  let bibleDataSourceInit = bibleDataSource;
   let bibleVersion = userProperties.getProperty('bibleVersion');
 
   // If there is no bibleDataSource
@@ -230,9 +244,10 @@ function createMenu() {
     bibleVersions.splice(bibleVersions.length, 0, bvk);
   };
 
-  // Re-run dynamicMenuGenerate() before setting menu entries, in case bibleDataSource changed
   userProperties.setProperty('bibleVersions', JSON.stringify(bibleVersions));
-  dynamicMenuGenerate();
+
+  // Re-run dynamicMenuGenerate() before setting menu entries, in case bibleDataSource changed
+  if ( bibleDataSourceInit != bibleDataSource ) dynamicMenuGenerate();
 
   // Get needed strings and values
   let displayName        = bibleData.bibleVersions[bibleVersion].displayName;
@@ -241,9 +256,17 @@ function createMenu() {
   let lengthLimit        = bibleData.strings.menu.lengthLimit;
   let customLabel        = bibleData.strings.menu.customLabel;
 
+  // Wait for dynamicMenuGenerate() to complete
+  while ( ! dynamicMenuGenerateDone ) Utilities.sleep(5);
+
   // Add Bible Linker to Docs menu
-  let menu = ui.createAddonMenu().addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion ).addSeparator();
-  // let menu = ui.createMenu('Test: Bible Linker').addItem( bibleData.strings.menu.doLink + ' ' + displayName, 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersion ).addSeparator(); // For testing
+  let menu = testing ?
+    ui.createMenu('Test: Bible Linker').addItem( bibleData.strings.menu.doLink + ' ' + displayName, dynamicFunctionVersion + bibleDataSource + '_' + bibleVersion ).addSeparator()
+    :
+    ui.createAddonMenu().addItem( bibleData.strings.menu.doLink + ' ' + displayName, dynamicFunctionVersion + bibleDataSource + '_' + bibleVersion ).addSeparator();
+
+  // let menu = ui.createAddonMenu().addItem( bibleData.strings.menu.doLink + ' ' + displayName, dynamicFunctionVersion + bibleDataSource + '_' + bibleVersion ).addSeparator();
+  // let menu = ui.createMenu('Test: Bible Linker').addItem( bibleData.strings.menu.doLink + ' ' + displayName, dynamicFunctionVersion + bibleDataSource + '_' + bibleVersion ).addSeparator(); // For testing
 
   // Set bibleVersions submenu
   let menuChooseBibleVersion = ui.createMenu(bibleData.strings.menu.chooseBibleVersion);
@@ -259,7 +282,7 @@ function createMenu() {
     bibleVersionDisplayName = bibleVersionDisplayName.length > lengthLimit ? bibleVersionDisplayName.substring(0, lengthLimit) + '\u00a0…' : bibleVersionDisplayName;
 
     // Generate function names for dynamic submenu
-    dynamicMenuBibleVersions = 'dynamicFunctionCall_ver_' + bibleDataSource + '__' + bibleVersionDynamic;
+    dynamicMenuBibleVersions = dynamicFunctionVersion + bibleDataSource + '_' + bibleVersionDynamic;
 
     // Add pointer at the beginning of the selected menu item
     let pointer = bibleVersion == bibleVersionDynamic ? selectorSelected : selectorUnselected;
@@ -293,7 +316,7 @@ function createMenu() {
     bibleDataSourceDisplayName = bibleDataSourceDisplayName.length > lengthLimit ? bibleDataSourceDisplayName.substring(0, lengthLimit) + '\u00a0…' : bibleDataSourceDisplayName;
     
     // Generate function names for dynamic submenu
-    dynamicMenuBibleDataSource = 'dynamicFunctionCall_src_' + bibleDataSourceDynamic;
+    dynamicMenuBibleDataSource = dynamicFunctionSource + bibleDataSourceDynamic;
 
     // Add pointer at the beginning of the selected menu item
     let pointer = bibleDataSource == bibleDataSourceDynamic ? selectorSelected : selectorUnselected;
