@@ -253,15 +253,15 @@ function createMenu() {
   // Re-run dynamicMenuGenerate() before setting menu entries, in case bibleDataSource changed
   if ( bibleDataSourceInit != bibleDataSource ) dynamicMenuGenerate();
 
+  // Wait for dynamicMenuGenerate() to complete
+  while ( ! dynamicMenuGenerateDone ) Utilities.sleep(5);
+
   // Get needed strings and values
   let displayName        = bibleData.bibleVersions[bibleVersion].displayName;
   let selectorSelected   = bibleData.strings.menu.selector.selected;
   let selectorUnselected = bibleData.strings.menu.selector.unselected;
   let lengthLimit        = bibleData.strings.menu.lengthLimit;
   let customLabel        = bibleData.strings.menu.customLabel;
-
-  // Wait for dynamicMenuGenerate() to complete
-  while ( ! dynamicMenuGenerateDone ) Utilities.sleep(5);
 
   // Add Bible Linker to Docs menu
   let menu = testing ?
